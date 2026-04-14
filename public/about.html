@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О Компании | Зелёный край</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/about.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main>
+        <header class="hero-simple reveal">
+            <div class="container-simple">
+                <h1>МЫ ПИШЕМ    КОД ЗЕМЛИ</h1>
+            </div>
+        </header>
+
+        <section class="slider-section">
+            <div class="slider-container" id="slider">
+                <div class="slide active">
+                    <img src="media/pole.avif" alt="Поле">
+                    <div class="slide-content"><h3>НАШИ ПОЛЯ</h3></div>
+                </div>
+                <div class="slide">
+                    <img src="media/psheno.avif" alt="Урожай">
+                    <div class="slide-content"><h3>УРОЖАЙ</h3></div>
+                </div>
+                <div class="slide">
+                    <img src="media/yach.jpg" alt="Производство">
+                    <div class="slide-content"><h3>ПРОИЗВОДСТВО</h3></div>
+                </div>
+            </div>
+            <div class="slider-controls">
+                <button class="control-btn" onclick="prevSlide()">←</button>
+                <button class="control-btn" onclick="nextSlide()">→</button>
+            </div>
+        </section>
+
+        <section class="philosophy-grid reveal">
+            <div class="ph-text">
+                <div class="quote-text">Мы выращиваем качество — от зерна до готовой поставки.</div>
+            </div>
+            <div class="ph-image"></div>
+        </section>
+
+        <section class="ab-journey reveal">
+            <div class="container-simple">
+                <h2 class="section-title">ОТ СЕМЕНИ ДО НАКЛАДНОЙ</h2>
+                <p class="ab-journey-lead">Не «цифры ради красоты», а понятный маршрут: что происходит с урожаем до того, как он уедет к вам.</p>
+                <ol class="ab-journey-track">
+                    <li class="ab-journey-step">
+                        <span class="ab-journey-dot" aria-hidden="true"></span>
+                        <span class="ab-journey-num">01</span>
+                        <div class="ab-journey-body">
+                            <h3>Поле и план</h3>
+                            <p>Севооборот, нормы внесения и цифровой снимок участка — чтобы сезон не был сюрпризом.</p>
+                        </div>
+                    </li>
+                    <li class="ab-journey-step">
+                        <span class="ab-journey-dot" aria-hidden="true"></span>
+                        <span class="ab-journey-num">02</span>
+                        <div class="ab-journey-body">
+                            <h3>Сбор и сушка</h3>
+                            <p>Контроль влажности и очистка: зерно не «едет домой», пока не пройдёт первичный фильтр качества.</p>
+                        </div>
+                    </li>
+                    <li class="ab-journey-step">
+                        <span class="ab-journey-dot" aria-hidden="true"></span>
+                        <span class="ab-journey-num">03</span>
+                        <div class="ab-journey-body">
+                            <h3>Лаборатория</h3>
+                            <p>Пробы фиксируются в карте партии — одна история от мешка до документов.</p>
+                        </div>
+                    </li>
+                    <li class="ab-journey-step">
+                        <span class="ab-journey-dot" aria-hidden="true"></span>
+                        <span class="ab-journey-num">04</span>
+                        <div class="ab-journey-body">
+                            <h3>Логистика</h3>
+                            <p>Сроки, транспорт и сопроводительные — вы заранее знаете, когда партия пересечёт вашу границу.</p>
+                        </div>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <section class="ab-faq reveal">
+            <div class="container-simple">
+                <h2 class="section-title">ВОПРОСЫ БЕЗ ВОДЫ</h2>
+                <div class="ab-faq-list">
+                    <details class="ab-faq-item">
+                        <summary>Откуда я узнаю, что это именно та партия?</summary>
+                        <p>У каждой отгрузки есть связка: номер, лабораторные показатели и логистический след. Запрашивайте карту партии — мы не прячем цепочку.</p>
+                    </details>
+                    <details class="ab-faq-item">
+                        <summary>Работаете ли вы только крупными объёмами?</summary>
+                        <p>Есть и контрактные поставки, и пилотные партии под тест рынка. Напишите задачу — подберём формат без лишней бюрократии.</p>
+                    </details>
+                    <details class="ab-faq-item">
+                        <summary>Что если качество на входе не совпало с ожиданием?</summary>
+                        <p>Разбираем по фактам: пробы, условия хранения и транспорт. Прозрачность для нас важнее спора «на эмоциях».</p>
+                    </details>
+                    <details class="ab-faq-item">
+                        <summary>Как быстро можно получить ответ по срокам?</summary>
+                        <p>Рабочие запросы по поставкам закрываем в течение одного рабочего дня — чаще быстрее, если речь о стандартной номенклатуре.</p>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <section class="ab-cta reveal">
+            <div class="ab-cta-inner">
+                <div class="ab-cta-copy">
+                    <h2 class="ab-cta-title">Хватит гадать по каталогу</h2>
+                    <p>Расскажите культуру, объём и порт — предложим вариант поставки и сроки без расплывчатых «скоро свяжемся».</p>
+                </div>
+                <div class="ab-cta-actions">
+                    <a href="services.html" class="ab-cta-btn ab-cta-btn--primary">Услуги и консультация</a>
+                    <a href="products.html" class="ab-cta-btn ab-cta-btn--ghost">Смотреть продукцию</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="timeline-vertical">
+            <h2 class="section-title" style="padding-left: 6%; margin-bottom: 60px;">ИСТОРИЯ РОСТА</h2>
+            <div class="timeline-item reveal">
+                <div class="tm-year">2014</div>
+                <div class="tm-info">
+                    <h3>СТАРТ</h3>
+                    <p>Основание компании и первые поставки зерновых культур. Мы начинали с небольшого хозяйства на юге России.</p>
+                </div>
+            </div>
+            <div class="timeline-item reveal">
+                <div class="tm-year">2018</div>
+                <div class="tm-info">
+                    <h3>ТЕХНОЛОГИЧЕСКИЙ ПРОРЫВ</h3>
+                    <p>Внедрение цифровых систем мониторинга полей и запуск собственной лаборатории качества.</p>
+                </div>
+            </div>
+            <div class="timeline-item reveal">
+                <div class="tm-year">2022</div>
+                <div class="tm-info">
+                    <h3>ЭКСПОРТ</h3>
+                    <p>Выход на международные рынки. Первые крупные контракты с партнерами из Европы и Азии.</p>
+                </div>
+            </div>
+            <div class="timeline-item reveal">
+                <div class="tm-year">2026</div>
+                <div class="tm-info">
+                    <h3>ЛИДЕРСТВО</h3>
+                    <p>Расширение производства до федеральных масштабов и статус одного из самых инновационных агрохолдингов страны.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="js/main.js"></script>
+</body>
+</html>

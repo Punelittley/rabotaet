@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Администрирование | Зелёный край</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body class="admin-page">
+    <div id="header-placeholder"></div>
+
+    <div id="admin-toast-container" class="toast-container"></div>
+
+
+    <main class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="sidebar-info">
+                <p>Управление системой</p>
+                <h2 id="admin-name">Загрузка...</h2>
+            </div>
+            <nav class="side-nav">
+                <button class="admin-nav-item active" onclick="showSection('orders')">ЗАКАЗЫ</button>
+                <button class="admin-nav-item" onclick="showSection('products')">ПРОДУКЦИЯ</button>
+                <button class="admin-nav-item" onclick="showSection('services')">УСЛУГИ</button>
+                <button class="admin-nav-item" onclick="showSection('users')">ПОЛЬЗОВАТЕЛИ</button>
+                <button class="admin-nav-item" onclick="showSection('stats')">АНАЛИТИКА</button>
+            </nav>
+            <div style="margin-top: auto; padding: 20px;">
+                <button id="logout-btn" style="width: 100%; padding: 10px; background: none; border: 1px solid rgba(255,0,0,0.3); color: #ff4d4d; cursor: pointer; font-size: 0.8rem; font-family: 'Geologica'; transition: 0.3s;">ВЫХОД</button>
+            </div>
+        </aside>
+
+        <section class="admin-content">
+            <div id="section-orders" class="admin-section active">
+                <div class="content-header">
+                    <h1>УПРАВЛЕНИЕ <span>ЗАКАЗАМИ</span></h1>
+                    <button class="refresh-btn" onclick="loadAllOrders()">ОБНОВИТЬ ДАННЫЕ</button>
+                </div>
+                <div class="orders-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>ПОЛЬЗОВАТЕЛЬ</th>
+                                <th>ПРОДУКТ</th>
+                                <th>ОБЪЕМ</th>
+                                <th>СТАТУС</th>
+                                <th>ЛОГИСТИКА</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-orders-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="section-products" class="admin-section">
+                <div class="content-header">
+                    <h1>УПРАВЛЕНИЕ <span>ПРОДУКЦИЕЙ</span></h1>
+                    <button class="refresh-btn" onclick="loadAdminProducts()">ОБНОВИТЬ</button>
+                </div>
+
+                <div class="orders-table-container" style="margin-bottom:40px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>НАЗВАНИЕ</th>
+                                <th>КАТЕГОРИЯ</th>
+                                <th>НАЛИЧИЕ</th>
+                                <th>ДЕЙСТВИЯ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-products-tbody"></tbody>
+                    </table>
+                </div>
+                <div class="admin-form-card">
+                    <h2 style="margin-bottom:30px;">ДОБАВИТЬ <span style="opacity:0.4;">ПРОДУКЦИЮ</span></h2>
+
+                    <div class="form-row">
+                        <div class="form-group"><label>Артикул / ID *</label><input type="text" id="p-id"
+                                placeholder="wheat-3-class"></div>
+                        <div class="form-group"><label>Название *</label><input type="text" id="p-name"
+                                placeholder="Пшеница 3 класса"></div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Категория *</label>
+                            <select id="p-cat">
+                                <option value="Зерновые">Зерновые</option>
+                                <option value="Бобовые">Бобовые</option>
+                                <option value="Масличные">Масличные</option>
+                                <option value="Корма">Корма</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Наличие (stock)</label><input type="text" id="p-stock"
+                                placeholder="150 тонн"></div>
+                        <div class="form-group">
+                            <label>Изображение (URL)</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="p-img" placeholder="https://..." style="flex: 1;">
+                                <input type="file" id="p-img-file" style="display: none;"
+                                    onchange="handleImageUpload(this, 'p-img')">
+                                <button type="button" class="refresh-btn" onclick="triggerImageUpload('p-img-file')"
+                                    style="white-space: nowrap; font-size: 0.7rem; padding: 0 15px;">ЗАГРУЗИТЬ</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Описание культуры (fullDesc)</label>
+                        <textarea id="p-fullDesc" rows="3"
+                            placeholder="Высококачественное сырье, прошедшее многоуровневую очистку..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Спецификации (Результаты тестов)</label>
+                        <div id="p-specs-list" class="dynamic-list">
+                            <div class="dynamic-item"><input type="text" placeholder="Влажность: 12%"><button
+                                    class="remove-item" onclick="this.parentElement.remove()">✕</button></div>
+                        </div>
+                        <button class="add-item-btn" onclick="addDynamicItem('p-specs-list', 'Белок: 13%')">+ Добавить
+                            спецификацию</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Пункты (например: Многоуровневая очистка)</label>
+                        <div id="p-features-list" class="dynamic-list">
+                            <div class="dynamic-item"><input type="text" value="Многоуровневая очистка"><button
+                                    class="remove-item" onclick="this.parentElement.remove()">✕</button></div>
+                            <div class="dynamic-item"><input type="text" value="Протоколы лаборатории"><button
+                                    class="remove-item" onclick="this.parentElement.remove()">✕</button></div>
+                            <div class="dynamic-item"><input type="text" value="Фитосанитарный контроль"><button
+                                    class="remove-item" onclick="this.parentElement.remove()">✕</button></div>
+                            <div class="dynamic-item"><input type="text" value="Калибровка и сортировка"><button
+                                    class="remove-item" onclick="this.parentElement.remove()">✕</button></div>
+                        </div>
+                        <button class="add-item-btn" onclick="addDynamicItem('p-features-list', '')">+ Добавить
+                            пункт</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Что вы получаете (опционально)</label>
+                        <div id="p-benefits-list" class="dynamic-list">
+                        </div>
+                        <button class="add-item-btn" onclick="addBenefitItem('p-benefits-list')">+ Добавить пункт "Что
+                            вы получаете"</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Дополнительные блоки (опционально: Логистика, Сопровождение, Документы...)</label>
+                        <div id="p-blocks-list" class="dynamic-list">
+
+                        </div>
+                        <button class="add-item-btn" onclick="addBlockItem('p-blocks-list')">+ Добавить блок</button>
+                    </div>
+
+                    <button class="save-btn" onclick="saveProduct(this)">
+                        <span>СОХРАНИТЬ ПРОДУКТ</span>
+                        <div class="btn-loader"></div>
+                    </button>
+                </div>
+            </div>
+
+            <div id="section-services" class="admin-section">
+                <div class="content-header">
+                    <h1>УПРАВЛЕНИЕ <span>УСЛУГАМИ</span></h1>
+                    <button class="refresh-btn" onclick="loadAdminServices()">ОБНОВИТЬ</button>
+                </div>
+
+                <div class="orders-table-container" style="margin-bottom:40px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>НАЗВАНИЕ</th>
+                                <th>НАПРАВЛЕНИЕ</th>
+                                <th>СТАТУС</th>
+                                <th>ДЕЙСТВИЯ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-services-tbody"></tbody>
+                    </table>
+                </div>
+
+                <div class="admin-form-card">
+                    <h2 style="margin-bottom:30px;">ДОБАВИТЬ <span style="opacity:0.4;">УСЛУГУ</span></h2>
+
+                    <div class="form-row">
+                        <div class="form-group"><label>ID (латиницей) *</label><input type="text" id="s-id"
+                                placeholder="lab2"></div>
+                        <div class="form-group"><label>Название *</label><input type="text" id="s-name"
+                                placeholder="Лабораторный анализ"></div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Направление (cat) *</label>
+                            <select id="s-cat">
+                                <option value="Лаборатория">Лаборатория</option>
+                                <option value="Логистика">Логистика</option>
+                                <option value="Агросканирование">Агросканирование</option>
+                                <option value="Другое">Другое</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Статус</label>
+                            <select id="s-status">
+                                <option value="Доступно">Доступно</option>
+                                <option value="Скоро">Скоро</option>
+                                <option value="Недоступно">Недоступно</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Описание *</label>
+                        <textarea id="s-desc" rows="3"
+                            placeholder="Полный спектр исследований качества зерновых и масличных культур."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group"><label>SVG path (icon, опционально)</label><input type="text"
+                                id="s-icon" placeholder="M12 2L2 7l10 5 10-5-10-5z..."></div>
+                        <div class="form-group">
+                            <label>Изображение (URL)</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="s-img" placeholder="https://..." style="flex: 1;">
+                                <input type="file" id="s-img-file" style="display: none;"
+                                    onchange="handleImageUpload(this, 's-img')">
+                                <button type="button" class="refresh-btn" onclick="triggerImageUpload('s-img-file')"
+                                    style="white-space: nowrap; font-size: 0.7rem; padding: 0 15px;">ЗАГРУЗИТЬ</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ключевые пункты</label>
+                        <div id="s-keypoints-list" class="dynamic-list">
+                            <div class="dynamic-item"><input type="text"
+                                    value="Согласование цели и показателей качества на старте работ."><button
+                                    class="remove-item" onclick="this.parentElement.remove()">✕</button></div>
+                            <div class="dynamic-item"><input type="text"
+                                    value="Прозрачный прогресс с отчетностью по этапам."><button class="remove-item"
+                                    onclick="this.parentElement.remove()">✕</button></div>
+                            <div class="dynamic-item"><input type="text"
+                                    value="Результат под клиента (формат документов и рекомендаций)."><button
+                                    class="remove-item" onclick="this.parentElement.remove()">✕</button></div>
+                        </div>
+                        <button class="add-item-btn" onclick="addDynamicItem('s-keypoints-list', '')">+ Добавить
+                            пункт</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Что входит (benefits: ключ — значение)</label>
+                        <div id="s-benefits-list" class="dynamic-list"></div>
+                        <button class="add-item-btn" onclick="addKVItem('s-benefits-list')">+ Добавить пункт</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Дополнительные блоки (опционально: Сроки, Подготовка, Документы...)</label>
+                        <div id="s-blocks-list" class="dynamic-list"></div>
+                        <button class="add-item-btn" onclick="addBlockItem('s-blocks-list')">+ Добавить блок</button>
+                    </div>
+
+                    <button class="save-btn" onclick="saveService(this)">
+                        <span>СОХРАНИТЬ УСЛУГУ</span>
+                        <div class="btn-loader"></div>
+                    </button>
+                </div>
+            </div>
+
+            <div id="section-users" class="admin-section">
+                <div class="content-header">
+                    <h1>БАЗА <span>ПОЛЬЗОВАТЕЛЕЙ</span></h1>
+                </div>
+                <div class="orders-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ИМЯ / СУБЪЕКТ</th>
+                                <th>EMAIL</th>
+                                <th>ОРГАНИЗАЦИЯ</th>
+                                <th>СТАТУС / РОЛЬ</th>
+                                <th>РЕГИСТРАЦИЯ</th>
+                                <th>ДЕЙСТВИЯ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="section-stats" class="admin-section">
+                <div class="content-header">
+                    <h1>ОБЩАЯ <span>АНАЛИТИКА</span></h1>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>ВСЕГО ЗАКАЗОВ</h3>
+                        <div class="value" id="stat-orders">0</div>
+                        <span class="trend">В ЭТОМ МЕСЯЦЕ: <b id="stat-month">+0</b></span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>ОБЪЕМ ГРУЗОВ</h3>
+                        <div class="value" id="stat-volume">0 т</div>
+                        <span class="trend">ЗА ВЕСЬ ПЕРИОД</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>ПОЛЬЗОВАТЕЛИ</h3>
+                        <div class="value" id="stat-users">0</div>
+                        <span class="trend">ЗАРЕГИСТРИРОВАНО</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="edit-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <h2>РЕДАКТОР ЛОГИСТИКИ: <span id="modal-order-id">---</span></h2>
+                    <div class="modal-grid">
+                        <div class="modal-form">
+                            <div class="form-group">
+                                <label>Статус заказа</label>
+                                <select id="edit-status">
+                                    <option value="new">Новый</option>
+                                    <option value="processing">В обработке</option>
+                                    <option value="shipped">Отгружен</option>
+                                    <option value="in_transit">В пути</option>
+                                    <option value="arrived">Прибыл</option>
+                                    <option value="done">Выполнен</option>
+                                    <option value="cancelled">Отменен</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Описание (локация)</label>
+                                <input type="text" id="edit-desc" placeholder="Напр: Сортировка в г. Краснодар">
+                            </div>
+                            <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+                            <div class="coord-row">
+                                <div class="form-group"><label>Откуда (Lat)</label><input type="number" step="0.0001"
+                                        id="edit-from-lat"></div>
+                                <div class="form-group"><label>Откуда (Lng)</label><input type="number" step="0.0001"
+                                        id="edit-from-lng"></div>
+                            </div>
+                            <div class="coord-row">
+                                <div class="form-group"><label>Текущее (Lat)</label><input type="number" step="0.0001"
+                                        id="edit-curr-lat"></div>
+                                <div class="form-group"><label>Текущее (Lng)</label><input type="number" step="0.0001"
+                                        id="edit-curr-lng"></div>
+                            </div>
+                            <div class="coord-row">
+                                <div class="form-group"><label>Куда (Lat)</label><input type="number" step="0.0001"
+                                        id="edit-to-lat"></div>
+                                <div class="form-group"><label>Куда (Lng)</label><input type="number" step="0.0001"
+                                        id="edit-to-lng"></div>
+                            </div>
+                            <button id="save-order-btn" class="save-btn">СОХРАНИТЬ ИЗМЕНЕНИЯ</button>
+                        </div>
+                        <div id="modal-map" style="height: 100%; min-height: 400px; background: #111;"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="user-edit-modal" class="modal">
+                <div class="modal-content" style="max-width: 500px;">
+                    <span class="close-modal" onclick="closeUserModal()">&times;</span>
+                    <h2>РЕДАКТИРОВАТЬ <span style="opacity:0.4;">ПОЛЬЗОВАТЕЛЯ</span></h2>
+                    <input type="hidden" id="edit-user-id">
+                    <div class="form-group">
+                        <label>Имя</label>
+                        <input type="text" id="edit-user-name">
+                    </div>
+                    <div class="form-group">
+                        <label>Фамилия</label>
+                        <input type="text" id="edit-user-surname">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Должность</label>
+                            <input type="text" id="edit-user-position" placeholder="Напр: Агроном">
+                        </div>
+                        <div class="form-group">
+                            <label>Телефон</label>
+                            <input type="text" id="edit-user-phone" placeholder="+7 (999) ...">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Регион</label>
+                            <input type="text" id="edit-user-region" placeholder="Краснодарский край">
+                        </div>
+                        <div class="form-group">
+                            <label>ИНН</label>
+                            <input type="text" id="edit-user-inn" placeholder="10 цифр для ИП / 12 для физлиц">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Организация</label>
+                        <input type="text" id="edit-user-org">
+                    </div>
+                    <div class="form-group">
+                        <label>Статус верификации</label>
+                        <select id="edit-user-verified">
+                            <option value="false">Ожидает (PENDING)</option>
+                            <option value="true">Подтвержден (VERIFIED)</option>
+                        </select>
+                    </div>
+                    <button class="save-btn" onclick="saveUser(this)">
+                        <span>СОХРАНИТЬ</span>
+                        <div class="btn-loader"></div>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const TOKEN_KEY = 'agro_access_token';
+        let currentEditingOrder = null;
+        let adminMap = null;
+        let adminMarkers = [];
+
+        function getToken() { return localStorage.getItem(TOKEN_KEY); }
+
+        showSection('orders');
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('admin-toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">${type === 'success' ? '✓' : '✕'}</div>
+                <div class="toast-msg">${message}</div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('active'), 10);
+            setTimeout(() => {
+                toast.classList.remove('active');
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
+        }
+
+        function triggerImageUpload(id) {
+            document.getElementById(id).click();
+        }
+
+        async function handleImageUpload(input, targetUrlId) {
+            if (!input.files || !input.files[0]) return;
+
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const uploadBtn = input.nextElementSibling;
+            const originalText = uploadBtn.textContent;
+            uploadBtn.textContent = '...';
+            uploadBtn.disabled = true;
+
+            try {
+                const res = await fetch('/api/admin/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    document.getElementById(targetUrlId).value = result.url;
+                    showToast('Фото загружено!');
+                } else {
+                    showToast(result.message || 'Ошибка загрузки', 'error');
+                }
+            } catch (e) {
+                showToast('Ошибка сети при загрузке', 'error');
+            } finally {
+                uploadBtn.textContent = originalText;
+                uploadBtn.disabled = false;
+            }
+        }
+
+        function setBtnLoading(btn, isLoading) {
+            if (isLoading) btn.classList.add('loading');
+            else btn.classList.remove('loading');
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`section-${sectionId}`).classList.add('active');
+            document.querySelectorAll('.admin-nav-item').forEach(i => i.classList.remove('active'));
+            document.querySelectorAll('.admin-nav-item').forEach(btn => {
+                if (btn.getAttribute('onclick')?.includes(sectionId)) btn.classList.add('active');
+            });
+            if (sectionId === 'orders') loadAllOrders();
+            if (sectionId === 'users') loadUsers();
+            if (sectionId === 'stats') loadStats();
+            if (sectionId === 'products') loadAdminProducts();
+            if (sectionId === 'services') loadAdminServices();
+        }
+
+        function addDynamicItem(listId, placeholder) {
+            const list = document.getElementById(listId);
+            const div = document.createElement('div');
+            div.className = 'dynamic-item';
+            div.innerHTML = `<input type="text" placeholder="${placeholder || ''}"><button class="remove-item" onclick="this.parentElement.remove()">✕</button>`;
+            list.appendChild(div);
+        }
+
+        function addBenefitItem(listId) {
+            const list = document.getElementById(listId);
+            const div = document.createElement('div');
+            div.className = 'dynamic-item benefit-item';
+            div.innerHTML = `<input type="text" placeholder="Заголовок (жирный)" class="benefit-bold"><input type="text" placeholder="Описание после заголовка" class="benefit-text"><button class="remove-item" onclick="this.parentElement.remove()">✕</button>`;
+            list.appendChild(div);
+        }
+
+        function addKVItem(listId) {
+            const list = document.getElementById(listId);
+            const div = document.createElement('div');
+            div.className = 'dynamic-item kv-item';
+            div.innerHTML = `<input type="text" placeholder="Ключ (напр: Маршруты)" class="kv-key"><input type="text" placeholder="Значение (напр: авто/ж/д/вода)" class="kv-val"><button class="remove-item" onclick="this.parentElement.remove()">✕</button>`;
+            list.appendChild(div);
+        }
+
+        function addBlockItem(listId) {
+            const list = document.getElementById(listId);
+            const div = document.createElement('div');
+            div.className = 'dynamic-item block-item';
+            div.innerHTML = `<input type="text" placeholder="Заголовок блока (напр: Логистика)" class="block-title"><textarea placeholder="Текст блока" class="block-text" rows="2"></textarea><button class="remove-item" onclick="this.parentElement.remove()">✕</button>`;
+            list.appendChild(div);
+        }
+
+        function getDynamicValues(listId) {
+            return [...document.querySelectorAll(`#${listId} .dynamic-item input[type="text"]`)].map(i => i.value.trim()).filter(Boolean);
+        }
+
+        function getBenefitValues(listId) {
+            return [...document.querySelectorAll(`#${listId} .benefit-item`)].map(item => {
+                const bold = item.querySelector('.benefit-bold')?.value.trim() || '';
+                const text = item.querySelector('.benefit-text')?.value.trim() || '';
+                return bold ? { bold, text } : null;
+            }).filter(Boolean);
+        }
+
+        function getKVValues(listId) {
+            return [...document.querySelectorAll(`#${listId} .kv-item`)].map(item => {
+                const k = item.querySelector('.kv-key')?.value.trim() || '';
+                const v = item.querySelector('.kv-val')?.value.trim() || '';
+                return k ? { k, v } : null;
+            }).filter(Boolean);
+        }
+
+        function getBlockValues(listId) {
+            return [...document.querySelectorAll(`#${listId} .block-item`)].map(item => {
+                const title = item.querySelector('.block-title')?.value.trim() || '';
+                const text = item.querySelector('.block-text')?.value.trim() || '';
+                return title ? { title, text } : null;
+            }).filter(Boolean);
+        }
+
+        async function loadAdminProducts() {
+            try {
+                const res = await fetch('/api/products');
+                const products = await res.json();
+                const tbody = document.getElementById('admin-products-tbody');
+                tbody.innerHTML = products.map(p => `
+                    <tr>
+                        <td>${p.id}</td>
+                        <td>${p.name}</td>
+                        <td>${p.cat}</td>
+                        <td>${p.stock || '—'}</td>
+                        <td><button class="edit-btn" onclick="deleteProduct('${p.id}')">УДАЛИТЬ</button></td>
+                    </tr>
+                `).join('') || '<tr><td colspan="5">Нет продуктов</td></tr>';
+            } catch (e) {
+                console.error('loadAdminProducts error:', e);
+            }
+        }
+
+        async function saveProduct(btn) {
+            const token = getToken();
+            setBtnLoading(btn, true);
+
+            const data = {
+                id: document.getElementById('p-id').value.trim(),
+                name: document.getElementById('p-name').value.trim(),
+                cat: document.getElementById('p-cat').value,
+                stock: document.getElementById('p-stock').value.trim(),
+                img: document.getElementById('p-img').value.trim(),
+                fullDesc: document.getElementById('p-fullDesc').value.trim(),
+                specs: getDynamicValues('p-specs-list'),
+                features: getDynamicValues('p-features-list'),
+                benefits: getBenefitValues('p-benefits-list'),
+                extraBlocks: getBlockValues('p-blocks-list')
+            };
+
+            if (!data.id || !data.name) {
+                showToast('Артикул и Название обязательны!', 'error');
+                setBtnLoading(btn, false);
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/admin/products', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    showToast('Продукт успешно добавлен');
+                    ['p-name', 'p-stock', 'p-img', 'p-fullDesc'].forEach(id => document.getElementById(id).value = '');
+                    loadAdminProducts();
+                } else {
+                    showToast(result.message || 'Ошибка сохранения', 'error');
+                }
+            } catch (e) {
+                showToast('Сетевая ошибка', 'error');
+            } finally {
+                setBtnLoading(btn, false);
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('Удалить продукт #' + id + '?')) return;
+            const token = getToken();
+            try {
+                await fetch(`/api/admin/products/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                loadAdminProducts();
+            } catch (e) { alert('Ошибка удаления'); }
+        }
+
+        async function loadAdminServices() {
+            try {
+                const res = await fetch('/api/services');
+                const services = await res.json();
+                const tbody = document.getElementById('admin-services-tbody');
+                tbody.innerHTML = services.map(s => `
+                    <tr>
+                        <td>${s.id}</td>
+                        <td>${s.name}</td>
+                        <td>${s.cat || '—'}</td>
+                        <td>${s.status || 'Доступно'}</td>
+                        <td><button class="edit-btn" onclick="deleteService('${s.id}')">УДАЛИТЬ</button></td>
+                    </tr>
+                `).join('') || '<tr><td colspan="5">Нет услуг</td></tr>';
+            } catch (e) {
+                console.error('loadAdminServices error:', e);
+            }
+        }
+
+        async function saveService(btn) {
+            const token = getToken();
+            setBtnLoading(btn, true);
+
+            const data = {
+                id: document.getElementById('s-id').value.trim(),
+                name: document.getElementById('s-name').value.trim(),
+                cat: document.getElementById('s-cat').value,
+                status: document.getElementById('s-status').value,
+                desc: document.getElementById('s-desc').value.trim(),
+                icon: document.getElementById('s-icon').value.trim(),
+                img: document.getElementById('s-img').value.trim(),
+                keyPoints: getDynamicValues('s-keypoints-list'),
+                benefits: getKVValues('s-benefits-list'),
+                extraBlocks: getBlockValues('s-blocks-list')
+            };
+
+            if (!data.id || !data.name) {
+                showToast('ID и название обязательны!', 'error');
+                setBtnLoading(btn, false);
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/admin/services', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    showToast('Услуга успешно добавлена');
+                    ['s-id', 's-name', 's-desc', 's-icon', 's-img'].forEach(id => document.getElementById(id).value = '');
+                    loadAdminServices();
+                } else {
+                    showToast(result.message || 'Ошибка сохранения', 'error');
+                }
+            } catch (e) {
+                showToast('Сетевая ошибка', 'error');
+            } finally {
+                setBtnLoading(btn, false);
+            }
+        }
+
+        async function deleteService(id) {
+            if (!confirm('Удалить услугу "' + id + '"?')) return;
+            const token = getToken();
+            try {
+                await fetch(`/api/admin/services/${encodeURIComponent(id)}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                loadAdminServices();
+            } catch (e) { alert('Ошибка удаления'); }
+        }
+
+        async function loadAllOrders() {
+            const token = getToken();
+            try {
+                const res = await fetch('/api/admin/orders', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error('Access denied');
+                const orders = await res.json();
+                renderTable(orders);
+            } catch (e) {
+                console.error('loadAllOrders error:', e);
+            }
+        }
+
+        async function loadUsers() {
+            const token = getToken();
+            const tbody = document.getElementById('admin-users-tbody');
+            tbody.innerHTML = '<tr><td colspan="5">Загрузка...</td></tr>';
+            try {
+                const res = await fetch('/api/admin/users', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const users = await res.json();
+                window.adminUsersData = users; // Store for modal
+                tbody.innerHTML = users.map(u => `
+                    <tr>
+                        <td style="font-weight:800;">${u.name}</td>
+                        <td style="opacity:0.6;">${u.email}</td>
+                        <td>${u.organization}</td>
+                        <td><span class="status-badge ${u.verified ? 'done' : 'new'}">${u.verified ? 'VERIFIED' : 'PENDING'}</span></td>
+                        <td style="font-size:0.7rem; opacity:0.4;">${u.created_at !== 'unknown' ? new Date(u.created_at).toLocaleDateString() : '---'}</td>
+                        <td><button class="edit-btn" onclick="openUserEditModal('${u.id}')">РЕДАКТИРОВАТЬ</button></td>
+                    </tr>
+                `).join('') || '<tr><td colspan="6">Пользователей не найдено</td></tr>';
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="6">Ошибка загрузки пользователей</td></tr>';
+            }
+        }
+
+        function openUserEditModal(id) {
+            const user = window.adminUsersData.find(u => u.id === id);
+            if (!user) return;
+            
+            document.getElementById('edit-user-id').value = user.id;
+            document.getElementById('edit-user-name').value = user.name || '';
+            document.getElementById('edit-user-surname').value = user.surname || '';
+            document.getElementById('edit-user-position').value = user.position || '';
+            document.getElementById('edit-user-phone').value = user.phone || '';
+            document.getElementById('edit-user-region').value = user.region || '';
+            document.getElementById('edit-user-inn').value = user.inn || '';
+            document.getElementById('edit-user-org').value = user.organization === '-' ? '' : user.organization;
+            document.getElementById('edit-user-verified').value = String(user.verified);
+            
+            document.getElementById('user-edit-modal').style.display = 'flex';
+        }
+
+        function closeUserModal() {
+            document.getElementById('user-edit-modal').style.display = 'none';
+        }
+
+        async function saveUser(btn) {
+            const token = getToken();
+            const id = document.getElementById('edit-user-id').value;
+            setBtnLoading(btn, true);
+
+            const payload = {
+                name: document.getElementById('edit-user-name').value.trim(),
+                surname: document.getElementById('edit-user-surname').value.trim(),
+                position: document.getElementById('edit-user-position').value.trim(),
+                phone: document.getElementById('edit-user-phone').value.trim(),
+                region: document.getElementById('edit-user-region').value.trim(),
+                inn: document.getElementById('edit-user-inn').value.trim(),
+                organization: document.getElementById('edit-user-org').value.trim(),
+                verified: document.getElementById('edit-user-verified').value === 'true'
+            };
+
+            try {
+                const res = await fetch(`/api/admin/users/${id}`, {
+                    method: 'PATCH',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`, 
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    showToast('Данные пользователя успешно обновлены');
+                    closeUserModal();
+                    loadUsers();
+                } else {
+                    const err = await res.json();
+                    showToast(err.message || 'Ошибка обновления', 'error');
+                }
+            } catch (e) {
+                showToast('Ошибка сети при сохранении', 'error');
+            } finally {
+                setBtnLoading(btn, false);
+            }
+        }
+
+        async function loadStats() {
+            const token = getToken();
+            try {
+                const res = await fetch('/api/admin/stats', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const stats = await res.json();
+
+                document.getElementById('stat-orders').textContent = stats.totalOrders || 0;
+                document.getElementById('stat-volume').textContent = (stats.totalVolume || 0) + ' т';
+                document.getElementById('stat-users').textContent = stats.totalUsers || 0;
+                document.getElementById('stat-month').textContent = '+' + (stats.newThisMonth || 0);
+
+                const health = document.getElementById('db-health');
+                if (stats.dbStatus === 'online') {
+                    health.textContent = 'БАЗА: ONLINE';
+                    health.className = 'db-status-chip online';
+                } else if (stats.dbStatus === 'error') {
+                    health.textContent = 'БАЗА: ERROR';
+                    health.className = 'db-status-chip';
+                } else {
+                    health.textContent = 'БАЗА: OFFLINE';
+                    health.className = 'db-status-chip';
+                }
+            } catch (e) {
+                console.error('Load stats failed');
+            }
+        }
+
+        function renderTable(orders) {
+            const tbody = document.getElementById('admin-orders-tbody');
+            tbody.innerHTML = orders.map(o => `
+                <tr>
+                    <td><small>${o.id.slice(0, 8)}</small></td>
+                    <td>${o.user_email}</td>
+                    <td>${o.product_name}</td>
+                    <td>${o.volume} т</td>
+                    <td><span class="status-badge ${o.status}">${o.status}</span></td>
+                    <td>${o.tracking_data ? 'Есть данные' : 'Нет данных'}</td>
+                </tr>
+            `).join('');
+        }
+
+        function openEditModal(order) {
+            currentEditingOrder = order;
+            document.getElementById('modal-order-id').textContent = order.id.slice(0, 8);
+            document.getElementById('edit-status').value = order.status;
+            const td = order.tracking_data || { from: [45, 38], to: [44, 37], current: [45, 38], description: '' };
+            document.getElementById('edit-desc').value = td.description || '';
+            document.getElementById('edit-from-lat').value = td.from[0];
+            document.getElementById('edit-from-lng').value = td.from[1];
+            document.getElementById('edit-curr-lat').value = td.current[0];
+            document.getElementById('edit-curr-lng').value = td.current[1];
+            document.getElementById('edit-to-lat').value = td.to[0];
+            document.getElementById('edit-to-lng').value = td.to[1];
+            document.getElementById('edit-modal').style.display = 'flex';
+            setTimeout(initModalMap, 200);
+        }
+
+        function initModalMap() {
+            const td = {
+                from: [parseFloat(document.getElementById('edit-from-lat').value), parseFloat(document.getElementById('edit-from-lng').value)],
+                current: [parseFloat(document.getElementById('edit-curr-lat').value), parseFloat(document.getElementById('edit-curr-lng').value)],
+                to: [parseFloat(document.getElementById('edit-to-lat').value), parseFloat(document.getElementById('edit-to-lng').value)]
+            };
+            if (!adminMap) {
+                adminMap = L.map('modal-map').setView(td.current, 7);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(adminMap);
+            } else {
+                adminMap.setView(td.current, 7);
+                adminMarkers.forEach(m => adminMap.removeLayer(m));
+                adminMarkers = [];
+            }
+            adminMarkers.push(L.marker(td.from).addTo(adminMap).bindPopup('From'));
+            adminMarkers.push(L.marker(td.to).addTo(adminMap).bindPopup('To'));
+            adminMarkers.push(L.marker(td.current, { draggable: true }).addTo(adminMap).on('dragend', function (e) {
+                const pos = e.target.getLatLng();
+                document.getElementById('edit-curr-lat').value = pos.lat.toFixed(4);
+                document.getElementById('edit-curr-lng').value = pos.lng.toFixed(4);
+            }));
+        }
+
+        document.getElementById('save-order-btn').onclick = async () => {
+            const token = getToken();
+            const payload = {
+                status: document.getElementById('edit-status').value,
+                tracking_data: {
+                    from: [parseFloat(document.getElementById('edit-from-lat').value), parseFloat(document.getElementById('edit-from-lng').value)],
+                    current: [parseFloat(document.getElementById('edit-curr-lat').value), parseFloat(document.getElementById('edit-curr-lng').value)],
+                    to: [parseFloat(document.getElementById('edit-to-lat').value), parseFloat(document.getElementById('edit-to-lng').value)],
+                    description: document.getElementById('edit-desc').value
+                }
+            };
+            const res = await fetch(`/api/orders/${currentEditingOrder.id}`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) { alert('Обновлено!'); document.getElementById('edit-modal').style.display = 'none'; loadAllOrders(); }
+            else { alert('Ошибка сохранения'); }
+        };
+
+        document.querySelector('.close-modal').onclick = () => document.getElementById('edit-modal').style.display = 'none';
+        window.onclick = (e) => { if (e.target.className === 'modal') e.target.style.display = 'none'; }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('agro_user') || '{}');
+            document.getElementById('admin-name').textContent = user.email || 'Admin';
+            loadAllOrders();
+
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                localStorage.removeItem(TOKEN_KEY);
+                localStorage.removeItem('agro_user');
+                window.location.href = 'auth.html';
+            });
+        });
+    </script>
+    <div id="footer-placeholder"></div>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

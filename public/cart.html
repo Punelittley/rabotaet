@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Корзина | Зелёный край</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/cart.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@100..900&family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+</head>
+<body class="cart-page-body">
+    <div id="header-placeholder"></div>
+
+    <main class="cart-terminal reveal">
+        <header class="cart-hero">
+            <div>
+                <p class="p-label">ОФОРМЛЕНИЕ ЗАКАЗА</p>
+                <h1>ВАША <span>КОРЗИНА</span></h1>
+            </div>
+
+        </header>
+
+        <div class="cart-grid-layout">
+            <div class="cart-items-side">
+                <div class="manifest-table-header">
+                    <div>НАИМЕНОВАНИЕ</div>
+                    <div>ЦЕНА</div>
+                    <div>ОБЪЕМ</div>
+                    <div>ИТОГО</div>
+                    <div></div>
+                </div>
+                
+                <div id="cart-items-container">
+                    <div style="padding: 100px 0; text-align: center; opacity: 0.3;">
+                        <p>КОРЗИНА ПУСТА</p>
+                    </div>
+                </div>
+
+                <div class="cart-actions-bottom">
+                    <button class="clear-btn" onclick="clearCart()">ОЧИСТИТЬ КОРЗИНУ</button>
+                </div>
+            </div>
+
+            <aside class="cart-summary-bottom">
+                <div class="summary-bottom-card">
+                    
+                    <div class="summary-left">
+                        <div class="logistics-selector">
+                            <label><svg width="12" height="12" viewBox="0 0 24 24" fill="var(--primary)" style="margin-bottom:-2px; margin-right:5px;"><path d="M21 16.5c0 .38-.21.71-.53.88l-7.97 4.44c-.31.17-.69.17-1 0l-7.97-4.44A.996.996 0 013 16.5v-9c0-.38.21-.71.53-.88l7.97-4.44c.31-.17.69-.17 1 0l7.97 4.44c.32.17.53.5.53.88v9z"/></svg> ДОСТАВКА</label>
+                            <select id="delivery-type">
+                                <option value="pickup">Самовывоз (Элеватор)</option>
+                                <option value="delivery">Доставка транспортом компании</option>
+                                <option value="port">Прямая поставка в порт</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="summary-middle">
+                        <div class="summary-metric">
+                            <label>ПОЗИЦИЙ</label>
+                            <strong id="sum-count">0</strong>
+                        </div>
+                        <div class="summary-metric">
+                            <label>ВЕС БРУТТО</label>
+                            <strong id="sum-volume">0 т</strong>
+                        </div>
+                    </div>
+
+                    <div class="summary-right">
+                        <div class="total-block">
+                            <label>ИТОГО К ОПЛАТЕ</label>
+                            <h2 id="total-price">0 ₽</h2>
+                        </div>
+                        <button class="cta-button" id="checkout-btn" onclick="processCheckout()">ОФОРМИТЬ ПОСТАВКУ</button>
+                    </div>
+
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+        if (!localStorage.getItem('agro_access_token')) {
+            window.location.href = 'auth.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+
+            renderCart();
+        });
+
+        function getCart() {
+            return JSON.parse(localStorage.getItem('agro_cart') || '[]');
+        }
+
+        function saveCart(cart) {
+            localStorage.setItem('agro_cart', JSON.stringify(cart));
+            renderCart();
+        }
+
+        function renderCart() {
+            const cart = getCart();
+            const container = document.getElementById('cart-items-container');
+            
+            if (cart.length === 0) {
+                container.innerHTML = '<div style="padding: 100px 0; text-align: center; opacity: 0.3;"><p>КОРЗИНА ПУСТА</p></div>';
+                updateSummary(0, 0, 0);
+                return;
+            }
+
+            let total = 0;
+            let volume = 0;
+
+            container.innerHTML = cart.map((item, index) => {
+                const subtotal = (item.price || 0) * (item.qty || 1);
+                total += subtotal;
+                volume += (parseFloat(item.qty) || 0);
+
+                return `
+                    <div class="cart-item-row">
+                        <div class="c-info">
+                            <img src="${item.img || 'media/placeholder.jpg'}" alt="">
+                            <div>
+                                <h4>${item.name}</h4>
+                                <span class="c-spec">${item.cat || 'Продукция'}</span>
+                            </div>
+                        </div>
+                        <div class="c-price">${(item.price || 0).toLocaleString()} ₽</div>
+                        <div class="c-qty">
+                            <input type="number" value="${item.qty || 1}" min="1" onchange="updateQty(${index}, this.value)">
+                            <span class="unit">т</span>
+                        </div>
+                        <div class="c-total">${subtotal.toLocaleString()} ₽</div>
+                        <button class="c-remove" onclick="removeItem(${index})">&times;</button>
+                    </div>
+                `;
+            }).join('');
+
+            updateSummary(cart.length, volume, total);
+        }
+
+        function updateSummary(count, vol, total) {
+            document.getElementById('sum-count').textContent = count;
+            document.getElementById('sum-volume').textContent = vol + ' т';
+            document.getElementById('total-price').textContent = total.toLocaleString() + ' ₽';
+            
+            const btn = document.getElementById('checkout-btn');
+            btn.disabled = count === 0;
+            btn.style.opacity = count === 0 ? '0.3' : '1';
+        }
+
+        function updateQty(index, val) {
+            const cart = getCart();
+            cart[index].qty = parseInt(val);
+            saveCart(cart);
+        }
+
+        function removeItem(index) {
+            const cart = getCart();
+            cart.splice(index, 1);
+            saveCart(cart);
+        }
+
+        function clearCart() {
+            if (confirm('Очистить корзину?')) saveCart([]);
+        }
+
+        async function processCheckout() {
+            const token = localStorage.getItem('agro_access_token');
+            if (!token) {
+                alert('Для оформления заказа необходимо войти в систему');
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            const cart = getCart();
+            const btn = document.getElementById('checkout-btn');
+            btn.disabled = true;
+            btn.innerHTML = 'ОФОРМЛЕНИЕ...';
+
+            try {
+                for (let item of cart) {
+                    const orderData = {
+                        productId: item.id,
+                        productName: item.name,
+                        volume: item.qty,
+                        comment: 'Заказ через корзину. Доставка: ' + document.getElementById('delivery-type').value,
+                        services: []
+                    };
+
+                    await fetch('/api/orders', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(orderData)
+                    });
+                }
+
+                alert('Заказы успешно оформлены! Вы будете перенаправлены в профиль для отслеживания.');
+                saveCart([]);
+                window.location.href = 'profile.html#orders';
+
+            } catch (err) {
+                console.error(err);
+                alert('Ошибка при оформлении. Попробуйте позже.');
+                btn.disabled = false;
+                btn.innerHTML = 'ОФОРМИТЬ ПОСТАВКУ';
+            }
+        }
+    </script>
+</body>
+</html>

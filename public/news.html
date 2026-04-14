@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новости и аналитика | Зелёный край</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/news.css">
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+    <main class="n-page">
+        <header class="hero-simple reveal">
+            <div class="container-simple">
+                <h1>НОВОСТИ И АНАЛИТИКА</h1>
+            </div>
+        </header>
+        <section class="n-container section">
+            <div class="n-grid" id="news-grid">
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+        async function loadNews() {
+            try {
+                const res = await fetch('/api/news');
+                const data = await res.json();
+                const grid = document.getElementById('news-grid');
+
+                grid.innerHTML = data.map((item, index) => `
+                    <article class="n-card reveal" style="grid-column: ${index === 0 ? 'span 12' : 'span 4'}">
+                        <a href="news_info.html?id=${item.id}" class="n-card-link">
+                            <div class="n-img-box">
+                                <img src="${item.img}" alt="${item.title}">
+                                <div class="n-date">${item.date}</div>
+                            </div>
+                            <div class="n-body">
+                                <span class="n-cat">${item.cat}</span>
+                                <h2>${item.title}</h2>
+                                <p>${item.excerpt}</p>
+                            </div>
+                        </a>
+                    </article>
+                `).join('');
+
+                if (window.initAnimations) initAnimations();
+            } catch (err) {
+                console.error("Ошибка загрузки новостей:", err);
+            }
+        }
+        document.addEventListener("DOMContentLoaded", loadNews);
+    </script>
+</body>
+
+</html>

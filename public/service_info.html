@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Сервис | Зелёный край</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/product_info.css">
+    <link rel="stylesheet" href="css/service_info.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+    <main id="pi-content">
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const id = new URLSearchParams(window.location.search).get('id');
+
+            let s = null;
+            try {
+                const res = await fetch(`/api/services/${encodeURIComponent(id)}`);
+                s = await res.json();
+            } catch (e) {
+                s = null;
+            }
+
+            if (!s) {
+                document.getElementById('pi-content').innerHTML = `
+                    <section class="pi-body section">
+                        <div class="grid-container">
+                            <div class="pi-main-text reveal" style="grid-column: span 12;">
+                                <h2 class="pi-sub">Услуга не найдена</h2>
+                                <p style="color: var(--text-muted); font-size: 1.2rem; line-height: 1.7;">
+                                    Попробуйте вернуться в каталог услуг.
+                                </p>
+                                <a class="pi-secondary-link" href="services.html">Назад к услугам</a>
+                            </div>
+                        </div>
+                    </section>
+                `;
+                if (window.initAnimations) initAnimations();
+                return;
+            }
+
+            const cat = s.cat || (() => {
+                const sid = String(s.id || '');
+                if (sid === 'lab') return 'Лаборатория';
+                if (sid === 'log') return 'Логистика';
+                if (sid === 'drones') return 'Агросканирование';
+                return 'Другое';
+            })();
+
+            const benefits = s.benefits || (() => {
+                if (String(s.id) === 'lab') {
+                    return [
+                        { k: 'Содержание белка', v: 'по стандартам' },
+                        { k: 'Влажность', v: 'в пределах требований' },
+                        { k: 'Документы', v: 'протоколы испытаний' }
+                    ];
+                }
+                if (String(s.id) === 'log') {
+                    return [
+                        { k: 'Маршруты', v: 'авто/ж/д/вода' },
+                        { k: 'Сроки', v: 'по графику' },
+                        { k: 'Сопровождение', v: 'полный пакет' }
+                    ];
+                }
+                if (String(s.id) === 'drones') {
+                    return [
+                        { k: 'Сканирование', v: 'по карте полей' },
+                        { k: 'ИИ анализ', v: 'оценка рисков' },
+                        { k: 'План работ', v: 'рекомендации' }
+                    ];
+                }
+                return [
+                    { k: 'Экспертиза', v: 'под задачу' },
+                    { k: 'Отчеты', v: 'в понятном виде' },
+                    { k: 'Согласование', v: 'с заказчиком' }
+                ];
+            })();
+
+            const benefitRowsHtml = benefits.map(b => `
+                <div class="pi-spec-row">
+                    <span>${b.k}</span><strong>${b.v}</strong>
+                </div>
+            `).join('');
+
+            const defaultKeyPoints = [
+                '<strong>Согласование цели</strong> и показателей качества на старте работ.',
+                '<strong>Прозрачный прогресс</strong> с отчетностью по этапам.',
+                '<strong>Результат под клиента</strong> (формат документов и рекомендаций).'
+            ];
+            const keyPoints = (s.keyPoints && s.keyPoints.length > 0) ? s.keyPoints : defaultKeyPoints;
+            const keyPointsHtml = keyPoints.map(kp => `<li>${kp}</li>`).join('');
+
+            const defaultBlocks = [
+                { title: 'Сроки', text: 'Запускаем процесс быстро и ведем до результата с согласованными контрольными точками.' },
+                { title: 'Подготовка', text: 'Помогаем подготовить документы и входные параметры, чтобы работа прошла без задержек.' },
+                { title: 'Документы', text: 'Вы получаете отчеты и протоколы в удобном формате по итогам этапов.' }
+            ];
+            const blocks = (s.extraBlocks && s.extraBlocks.length > 0) ? s.extraBlocks : defaultBlocks;
+            const blocksHtml = blocks.map(b => `
+                <div class="pi-extra-card" style="grid-column: span ${Math.floor(12 / blocks.length)};">
+                    <h3 class="pi-sub">${b.title}</h3>
+                    <p>${b.text}</p>
+                </div>
+            `).join('');
+
+            const imageById = {
+                lab: '/media/analiz.jpg',
+                log: '/media/postavka.jpg',
+                drones: '/media/skan.webp'
+            };
+            const heroImg = imageById[s.id] || s.img || '/media/analiz.jpg';
+            const statusText = s.status || 'Доступно';
+
+            document.getElementById('pi-content').innerHTML = `
+                <section class="pi-header reveal">
+                    <div class="pi-header-top">
+                        <!-- <span class="p-label">${cat} / ID: ${s.id}</span> -->
+                        <h1>${s.name}</h1>
+                    </div>
+                    <div class="pi-hero-frame">
+                        <img src="${heroImg}" alt="${s.name}">
+                        <div class="pi-floating-stats">
+                            <div class="f-stat"><span>Направление</span><strong>${cat}</strong></div>
+                            <div class="f-stat"><span>Статус</span><strong>${statusText}</strong></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section pi-body">
+                    <div class="grid-container">
+                        <div class="pi-main-text reveal" style="grid-column: span 7;">
+                            <h2 class="pi-sub">Описание</h2>
+                            <p>${s.desc || 'Индивидуальное сервисное сопровождение от компании «Зелёный край».'}</p>
+
+                            <div class="pi-benefits">
+                                <h3 class="pi-sub-small">Ключевые пункты</h3>
+                                <ul class="pi-benefit-list">
+                                    ${keyPointsHtml}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="pi-side reveal" style="grid-column: span 5;">
+                            <div class="pi-spec-card">
+                                <h2 class="pi-sub">Что входит</h2>
+                                <div class="pi-spec-rows">
+                                    ${benefitRowsHtml}
+                                </div>
+                                <button class="cta-button" style="width: 100%; margin-top: 30px;" onclick="handleConsultation(event, '${s.id}', '${s.name}')">Оставить заявку</button>
+                                <div class="pi-spec-note">
+                                    Подберем оптимальный формат сервиса и подготовим предложение под вашу задачу.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                ${blocks.length > 0 ? `
+                <section class="section pi-extra reveal">
+                    <div class="grid-container">
+                        ${blocksHtml}
+                    </div>
+                </section>` : ''}
+            `;
+
+            if (window.initAnimations) initAnimations();
+        });
+    </script>
+</body>
+</html>

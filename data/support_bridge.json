@@ -1,0 +1,12 @@
+{
+  "operatorPeerId": 550394386,
+  "autoBoundAt": "2026-04-10T13:01:06.206Z",
+  "lastSessionByPeer": {
+    "550394386": "s-1775821987316-20z8hl"
+  },
+  "lastBoundAt": "2026-04-10T13:01:06.208Z",
+  "lastForwardError": "VK_GROUP_TOKEN is empty",
+  "lastForwardErrorAt": "2026-04-12T20:23:38.126Z",
+  "lastSessionId": "s-1775821987316-20z8hl",
+  "lastForwardOkAt": "2026-04-10T13:25:00.889Z"
+}

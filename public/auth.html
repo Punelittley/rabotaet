@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Авторизация | Зелёный край</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-page">
+    <div id="header-placeholder"></div>
+
+    <div class="auth-bg-container">
+        <div class="bg-overlay"></div>
+        <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80" class="bg-img" alt="Wheat field">
+    </div>
+
+    <main class="auth-center-wrapper">
+        <div class="terminal-card reveal">
+            <div class="terminal-header">
+                <div class="agro-status-line">
+                    <span class="status-tag">System: Active</span>
+                    <span class="status-tag">Season: 2026</span>
+                </div>
+                <h1 class="terminal-title" style="margin-bottom: 40px;">
+                    <img src="media/logo.svg" alt="AGROSPHERE" style="height: 120px; width: auto; filter: drop-shadow(0 0 20px var(--primary-glow));">
+                </h1>
+            </div>
+
+            <div class="terminal-body-layout">
+                <div class="terminal-body">
+                    <div id="auth-message" class="auth-message" aria-live="polite"></div>
+
+                    <div class="form-nav" id="form-nav">
+                        <button type="button" class="nav-link-btn active" onclick="showForm('login')">Вход</button>
+                        <button type="button" class="nav-link-btn" onclick="showForm('register')">Регистрация</button>
+                    </div>
+
+                    <div class="form-container">
+                        <form id="login-agro" class="agro-form active">
+                            <div class="agro-input">
+                                <label>Email идентификатор</label>
+                                <input type="email" placeholder="mail@zelenikrai.ru" autocomplete="email" required>
+                            </div>
+                            <div class="agro-input">
+                                <label>Пароль доступа</label>
+                                <input type="password" placeholder="••••••••" autocomplete="current-password" required>
+                            </div>
+                            <button type="submit" class="cta-button full">Авторизоваться</button>
+                        </form>
+
+                        <form id="register-agro" class="agro-form">
+                            <div class="agro-form-grid">
+                                <div class="agro-input">
+                                    <label>Имя</label>
+                                    <input id="reg-name" type="text" placeholder="Иван" autocomplete="given-name" required>
+                                </div>
+                                <div class="agro-input">
+                                    <label>Фамилия</label>
+                                    <input id="reg-surname" type="text" placeholder="Петров" autocomplete="family-name" required>
+                                </div>
+                            </div>
+                            <div class="agro-input">
+                                <label>Организация</label>
+                                <input id="reg-org" type="text" placeholder="ООО Агро-Холдинг" autocomplete="organization" required>
+                            </div>
+                            <div class="agro-form-grid">
+                                <div class="agro-input">
+                                    <label>Должность</label>
+                                    <input id="reg-position" type="text" placeholder="Руководитель закупок" required>
+                                </div>
+                                <div class="agro-input">
+                                    <label>Телефон</label>
+                                    <input id="reg-phone" type="tel" placeholder="+7 (999) 123-45-67" autocomplete="tel" required>
+                                </div>
+                            </div>
+                            <div class="agro-form-grid">
+                                <div class="agro-input">
+                                    <label>Регион</label>
+                                    <input id="reg-region" type="text" placeholder="Краснодарский край" required>
+                                    <div id="region-hint" style="display: none; color: #4CAF50; font-size: 0.85rem; margin-top: 6px; cursor: pointer; transition: opacity 0.2s ease;">
+                                        Может вы имели в виду: <strong id="region-suggestion-text" style="text-decoration: underline;"></strong>?
+                                    </div>
+                                </div>
+                                <div class="agro-input">
+                                    <label>ИНН</label>
+                                    <input id="reg-inn" type="text" placeholder="1234567890" inputmode="numeric" required>
+                                </div>
+                            </div>
+                            <div class="agro-input">
+                                <label>Email</label>
+                                <input id="reg-email" type="email" placeholder="admin@company.ru" autocomplete="email" required>
+                            </div>
+                            <div class="agro-form-grid">
+                                <div class="agro-input">
+                                    <label>Пароль</label>
+                                    <input id="reg-password" type="password" placeholder="••••••••" autocomplete="new-password" minlength="6" required>
+                                </div>
+                                <div class="agro-input">
+                                    <label>Подтвердите пароль</label>
+                                    <input id="reg-password-confirm" type="password" placeholder="••••••••" autocomplete="new-password" minlength="6" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="cta-button full">Создать аккаунт</button>
+                        </form>
+
+                        <form id="verify-agro" class="agro-form">
+                            <h2 class="form-title-small">Подтверждение Email</h2>
+                            <p class="form-desc">Введите 6-значный код из письма для <strong id="verify-email-display">—</strong>.</p>
+                            <input type="hidden" id="verify-email-hidden">
+                            <div class="agro-input">
+                                <label>Код подтверждения</label>
+                                <input id="verify-code" type="text" placeholder="123456" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required>
+                            </div>
+                            <button type="submit" class="cta-button full">Подтвердить Email</button>
+                            <button type="button" class="back-link-btn" id="resend-code-btn">Отправить код повторно</button>
+                            <button type="button" class="back-link-btn" onclick="showForm('login')">Перейти ко входу</button>
+                        </form>
+
+                        <form id="forgot-agro" class="agro-form">
+                            <h2 class="form-title-small">Сброс пароля</h2>
+                            <p class="form-desc">Инструкции будут отправлены на ваш Email.</p>
+                            <div class="agro-input">
+                                <label>Ваш Email</label>
+                                <input type="email" id="forgot-email" placeholder="mail@zelenikrai.ru" autocomplete="email" required>
+                            </div>
+                            <button type="submit" class="cta-button full">Отправить запрос</button>
+                            <button type="button" class="back-link-btn" onclick="showForm('login')">Вернуться назад</button>
+                        </form>
+                        <form id="reset-pass-agro" class="agro-form">
+                            <h2 class="form-title-small">Новый пароль</h2>
+                            <p class="form-desc" style="color: var(--primary); font-size: 0.75rem; border: 1px solid var(--primary); padding: 10px; margin-bottom: 20px;">Введите 6-значный код из письма и новый пароль для <strong id="reset-email-display">—</strong>.</p>
+                            <input type="hidden" id="reset-email-hidden">
+                            <div class="agro-input">
+                                <label>Код из письма</label>
+                                <input id="reset-code" type="text" placeholder="123456" inputmode="numeric" maxlength="6" required>
+                            </div>
+                            <div class="agro-input">
+                                <label>Новый пароль</label>
+                                <input id="reset-new-password" type="password" placeholder="••••••••" minlength="6" required>
+                            </div>
+                            <button type="submit" class="cta-button full">Сбросить пароль</button>
+                            <button type="button" class="back-link-btn" onclick="showForm('forgot')">Назад к вводу Email</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="terminal-side">
+                    <img
+                        src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80"
+                        alt="Поле пшеницы"
+                        class="terminal-side-img"
+                    />
+                    <div class="terminal-side-overlay"></div>
+                    <div class="terminal-side-text">
+                        <div class="side-kicker">Безопасность Зелёного края</div>
+                        <div class="side-title">Доступ к платформе</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="js/main.js"></script>
+    <script>
+        const ACCESS_TOKEN_KEY = 'agro_access_token';
+        const REFRESH_TOKEN_KEY = 'agro_refresh_token';
+        const PENDING_SIGNUP_KEY = 'agro_pending_signup';
+        const USER_KEY = 'agro_user';
+
+        let signInInFlight = false;
+        let signUpInFlight = false;
+        let lastRegisterEmail = '';
+
+        function now() {
+            return Date.now();
+        }
+
+        function setAuthMessage(msg, isError = false) {
+            const el = document.getElementById('auth-message');
+            if (!el) return;
+            el.textContent = msg || '';
+            el.style.color = isError ? '#ff5555' : 'var(--primary)';
+        }
+
+        function clearTokens() {
+            localStorage.removeItem(ACCESS_TOKEN_KEY);
+            localStorage.removeItem(REFRESH_TOKEN_KEY);
+        }
+
+        function extractSessionTokens(payload) {
+            const session = payload?.session;
+            const access = session?.access_token || payload?.access_token;
+            const refresh = session?.refresh_token || payload?.refresh_token;
+            return { access, refresh };
+        }
+
+        function persistTokens(payload) {
+            const { access, refresh } = extractSessionTokens(payload || {});
+            if (access) {
+                localStorage.setItem(ACCESS_TOKEN_KEY, access);
+            } else {
+                localStorage.removeItem(ACCESS_TOKEN_KEY);
+            }
+
+            if (refresh) {
+                localStorage.setItem(REFRESH_TOKEN_KEY, refresh);
+            } else {
+                localStorage.removeItem(REFRESH_TOKEN_KEY);
+            }
+        }
+
+        function persistUser(payload) {
+            const user = payload?.user || payload?.session?.user;
+            if (user) {
+                localStorage.setItem(USER_KEY, JSON.stringify(user));
+            }
+        }
+
+        function persistAuthState(payload) {
+            persistTokens(payload);
+            persistUser(payload);
+        }
+
+        function readPendingSignup() {
+            try {
+                const raw = localStorage.getItem(PENDING_SIGNUP_KEY);
+                if (!raw) return null;
+
+                const parsed = JSON.parse(raw);
+                if (!parsed?.email || !parsed?.ts) {
+                    localStorage.removeItem(PENDING_SIGNUP_KEY);
+                    return null;
+                }
+
+                if (now() - Number(parsed.ts) > PENDING_SIGNUP_TTL_MS) {
+                    localStorage.removeItem(PENDING_SIGNUP_KEY);
+                    return null;
+                }
+
+                return {
+                    email: String(parsed.email).trim().toLowerCase(),
+                    ts: Number(parsed.ts)
+                };
+            } catch {
+                localStorage.removeItem(PENDING_SIGNUP_KEY);
+                return null;
+            }
+        }
+
+        function savePendingSignup(email) {
+            const normalized = String(email || '').trim().toLowerCase();
+            if (!normalized) return;
+
+            localStorage.setItem(PENDING_SIGNUP_KEY, JSON.stringify({
+                email: normalized,
+                ts: now()
+            }));
+        }
+
+        const RUSSIAN_REGIONS = [
+            "Москва", "Санкт-Петербург", "Севастополь",
+            "Республика Адыгея", "Республика Алтай", "Республика Башкортостан",
+            "Республика Бурятия", "Республика Дагестан", "Республика Ингушетия",
+            "Кабардино-Балкарская Республика", "Республика Калмыкия", "Карачаево-Черкесская Республика",
+            "Республика Карелия", "Республика Коми", "Республика Марий Эл",
+            "Республика Мордовия", "Республика Саха (Якутия)", "Республика Северная Осетия — Алания",
+            "Республика Татарстан", "Республика Тыва", "Удмуртская Республика",
+            "Республика Хакасия", "Чеченская Республика", "Чувашская Республика",
+            "Алтайский край", "Забайкальский край", "Камчатский край",
+            "Краснодарский край", "Красноярский край", "Пермский край",
+            "Приморский край", "Ставропольский край", "Хабаровский край",
+            "Амурская область", "Архангельская область", "Астраханская область",
+            "Белгородская область", "Брянская область", "Владимирская область",
+            "Волгоградская область", "Вологодская область", "Воронежская область",
+            "Ивановская область", "Иркутская область", "Калининградская область",
+            "Калужская область", "Кемеровская область", "Кировская область",
+            "Костромская область", "Курганская область", "Курская область",
+            "Ленинградская область", "Липецкая область", "Магаданская область",
+            "Московская область", "Мурманская область", "Нижегородская область",
+            "Новгородская область", "Новосибирская область", "Омская область",
+            "Оренбургская область", "Орловская область", "Пензенская область",
+            "Псковская область", "Ростовская область", "Рязанская область",
+            "Самарская область", "Саратовская область", "Сахалинская область",
+            "Свердловская область", "Смоленская область", "Тамбовская область",
+            "Тверская область", "Томская область", "Тульская область",
+            "Тюменская область", "Ульяновская область", "Челябинская область",
+            "Ярославская область", "Еврейская автономная область",
+            "Ненецкий автономный округ", "Ханты-Мансийский автономный округ — Югра",
+            "Чукотский автономный округ", "Ямало-Ненецкий автономный округ"
+        ];
+
+        function levenshteinDistance(a, b) {
+            if (a.length === 0) return b.length;
+            if (b.length === 0) return a.length;
+            const matrix = [];
+            for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+            for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) == a.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1,
+                            matrix[i][j - 1] + 1,
+                            matrix[i - 1][j] + 1
+                        );
+                    }
+                }
+            }
+            return matrix[b.length][a.length];
+        }
+
+        function initRegionSuggestion() {
+            const input = document.getElementById('reg-region');
+            const hintDiv = document.getElementById('region-hint');
+            const hintText = document.getElementById('region-suggestion-text');
+
+            if (!input || !hintDiv || !hintText) return;
+
+            input.addEventListener('input', (e) => {
+                const val = e.target.value.trim().toLowerCase();
+                hintDiv.style.display = 'none';
+
+                if (val.length < 3) return;
+
+                const exactMatch = RUSSIAN_REGIONS.find(r => r.toLowerCase() === val);
+                if (exactMatch) return;
+
+                let bestMatch = null;
+                let minDistance = Infinity;
+
+                for (const region of RUSSIAN_REGIONS) {
+                    const rLower = region.toLowerCase();
+                    
+                    if (rLower.includes(val)) {
+                        bestMatch = region;
+                        break; 
+                    }
+
+                    const dist = levenshteinDistance(val, rLower);
+                    if (dist <= 3 && dist < minDistance) {
+                        minDistance = dist;
+                        bestMatch = region;
+                    }
+                }
+
+                if (bestMatch && bestMatch.toLowerCase() !== val) {
+                    hintText.textContent = bestMatch;
+                    hintDiv.style.display = 'block';
+                }
+            });
+
+            hintDiv.addEventListener('click', () => {
+                input.value = hintText.textContent;
+                hintDiv.style.display = 'none';
+                input.focus();
+            });
+        }
+        function clearPendingSignup(email) {
+            if (!email) {
+                localStorage.removeItem(PENDING_SIGNUP_KEY);
+                return;
+            }
+
+            const pending = readPendingSignup();
+            const normalized = String(email).trim().toLowerCase();
+
+            if (pending && pending.email === normalized) {
+                localStorage.removeItem(PENDING_SIGNUP_KEY);
+            }
+        }
+
+        async function postAuth(endpoint, body, fallback429Ms = AUTH_COOLDOWN_MS) {
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body || {})
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok) {
+                const message = data?.message || data?.error_description || data?.error || `Ошибка (${res.status})`;
+                const err = new Error(message);
+
+                if (res.status === 429) {
+                    const retryAfterMs = Number(data?.retryAfterMs);
+                    err.retryAfterMs = Number.isFinite(retryAfterMs) && retryAfterMs > 0
+                        ? retryAfterMs
+                        : fallback429Ms;
+                }
+
+                err.status = res.status;
+                throw err;
+            }
+
+            return data;
+        }
+
+        async function supaSignIn(email, password) {
+            return postAuth('/api/auth/signin', { email, password }, 5000);
+        }
+
+        async function supaSignUp(payload) {
+            return postAuth('/api/auth/signup', payload, 60000);
+        }
+
+        async function supaVerifyEmail(email, token) {
+            return postAuth('/api/auth/verify-email', { email, token }, 5000);
+        }
+
+        async function supaResendCode(email) {
+            return postAuth('/api/auth/resend-code', { email }, 60000);
+        }
+
+        function handleAuthError(err, mode = 'generic') {
+            const msg = String(err?.message || err || '');
+            const lowered = msg.toLowerCase();
+
+            if (lowered.includes('email не подтвержд') || lowered.includes('email not confirmed')) {
+                setAuthMessage('Подтвердите email кодом из письма, затем выполните вход.', true);
+                return true;
+            }
+
+            if (
+                /rate limit exceeded/i.test(msg) ||
+                /слишком много/i.test(msg) ||
+                /email rate limit exceeded/i.test(msg) ||
+                /письмо подтверждения/i.test(msg)
+            ) {
+                setAuthMessage(`Слишком много запросов к базе данных. Попробуйте позже.`, true);
+                return true;
+            }
+
+            if (
+                lowered.includes('already registered') ||
+                lowered.includes('already exists') ||
+                lowered.includes('уже зарегистрирован')
+            ) {
+                setAuthMessage('Этот email уже зарегистрирован. Перейдите на вкладку "Вход" или восстановите пароль.', true);
+                showForm('login');
+                return true;
+            }
+
+            setAuthMessage(msg || 'Ошибка аутентификации', true);
+            return true;
+        }
+
+        function showForm(type) {
+            const forms = document.querySelectorAll('.agro-form');
+            const btns = document.querySelectorAll('.nav-link-btn');
+            const nav = document.getElementById('form-nav');
+
+            forms.forEach((f) => f.classList.remove('active'));
+            btns.forEach((b) => b.classList.remove('active'));
+
+            if (type === 'login') {
+                nav.style.display = 'flex';
+                document.getElementById('login-agro').classList.add('active');
+                if (btns[0]) btns[0].classList.add('active');
+            } else if (type === 'register') {
+                nav.style.display = 'flex';
+                document.getElementById('register-agro').classList.add('active');
+                if (btns[1]) btns[1].classList.add('active');
+            } else if (type === 'verify') {
+                nav.style.display = 'none';
+                document.getElementById('verify-agro').classList.add('active');
+            } else if (type === 'forgot') {
+                nav.style.display = 'none';
+                document.getElementById('forgot-agro').classList.add('active');
+            } else if (type === 'reset') {
+                nav.style.display = 'none';
+                document.getElementById('reset-pass-agro').classList.add('active');
+            }
+        }
+
+        function showVerifyForm(email) {
+            const normalized = String(email || '').trim().toLowerCase();
+            document.getElementById('verify-email-display').textContent = normalized || '—';
+            document.getElementById('verify-email-hidden').value = normalized;
+            document.getElementById('verify-code').value = '';
+            showForm('verify');
+        }
+
+        function showPendingSignupHint() {
+            const pending = readPendingSignup();
+            if (!pending) return;
+            setAuthMessage(
+                `Для ${pending.email} регистрация уже была отправлена ранее. Проверьте почту, затем войдите на вкладке "Вход".`,
+                false
+            );
+            showVerifyForm(pending.email);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('login-agro');
+            const registerForm = document.getElementById('register-agro');
+            const verifyForm = document.getElementById('verify-agro');
+
+            showPendingSignupHint();
+            initRegionSuggestion();
+
+            if (loginForm) {
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    setAuthMessage('');
+
+                    if (signInInFlight) return;
+                    const email = loginForm.querySelector('input[type="email"]')?.value?.trim();
+                    const password = loginForm.querySelector('input[type="password"]')?.value;
+
+                    if (!email || !password) {
+                        setAuthMessage('Заполните Email и пароль.', true);
+                        return;
+                    }
+
+                    const submitBtn = loginForm.querySelector('button[type="submit"]');
+
+                    signInInFlight = true;
+                    if (submitBtn) submitBtn.disabled = true;
+
+                    try {
+                        const payload = await supaSignIn(email, password);
+                        persistAuthState(payload);
+                        clearPendingSignup(email);
+                        setAuthMessage('Вход выполнен. Перенаправляем...', false);
+                        window.location.href = 'profile.html';
+                    } catch (err) {
+                        console.error(err);
+                        if (String(err?.message || '').toLowerCase().includes('email not confirmed')) {
+                            savePendingSignup(email);
+                            showVerifyForm(email);
+                        }
+                        const used = handleAuthError(err, 'signin');
+                    } finally {
+                        signInInFlight = false;
+                        if (submitBtn) submitBtn.disabled = signInInFlight;
+                    }
+                });
+            }
+
+            if (registerForm) {
+                registerForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    setAuthMessage('');
+
+                    if (signUpInFlight) return;
+
+                    const payload = {
+                        firstName: document.getElementById('reg-name').value.trim(),
+                        lastName: document.getElementById('reg-surname').value.trim(),
+                        organization: document.getElementById('reg-org').value.trim(),
+                        position: document.getElementById('reg-position').value.trim(),
+                        phone: document.getElementById('reg-phone').value.trim(),
+                        region: document.getElementById('reg-region').value.trim(),
+                        inn: document.getElementById('reg-inn').value.trim(),
+                        email: document.getElementById('reg-email').value.trim(),
+                        password: document.getElementById('reg-password').value,
+                        passwordConfirm: document.getElementById('reg-password-confirm').value
+                    };
+                    const email = payload.email;
+                    const password = payload.password;
+
+                    lastRegisterEmail = String(email || '').trim().toLowerCase();
+
+                    if (!payload.firstName || !payload.lastName || !payload.organization || !payload.position || !payload.phone || !payload.region || !payload.inn || !email || !password) {
+                        setAuthMessage('Заполните все поля регистрации.', true);
+                        return;
+                    }
+
+                    const nameRegex = /^[A-Za-zА-Яа-яЁё\s\-]{2,50}$/;
+                    if (!nameRegex.test(payload.firstName)) {
+                        setAuthMessage('Имя может содержать только буквы, пробелы и дефисы (минимум 2 символа).', true);
+                        return;
+                    }
+                    if (!nameRegex.test(payload.lastName)) {
+                        setAuthMessage('Фамилия может содержать только буквы, пробелы и дефисы (минимум 2 символа).', true);
+                        return;
+                    }
+
+                    const orgRegex = /^[A-Za-zА-Яа-яЁё0-9\s\-_.«»"']{2,150}$/;
+                    if (!orgRegex.test(payload.organization)) {
+                        setAuthMessage('Название организации некорректно.', true);
+                        return;
+                    }
+
+                    const posRegionRegex = /^[A-Za-zА-Яа-яЁё0-9\s\-\.,]{2,100}$/;
+                    if (!posRegionRegex.test(payload.position)) {
+                        setAuthMessage('Должность некорректна (минимум 2 символа).', true);
+                        return;
+                    }
+                    if (!posRegionRegex.test(payload.region)) {
+                        setAuthMessage('Регион некорректен (минимум 2 символа).', true);
+                        return;
+                    }
+
+                    const phoneClean = payload.phone.replace(/[^\d]/g, '');
+                    if (phoneClean.length !== 11 || !/^[78]/.test(phoneClean)) {
+                        setAuthMessage('Телефон должен содержать 11 цифр и начинаться с 7 или 8.', true);
+                        return;
+                    }
+
+                    if (!/^(\d{10}|\d{12})$/.test(payload.inn)) {
+                        setAuthMessage('ИНН должен состоять ровно из 10 или 12 цифр.', true);
+                        return;
+                    }
+
+                    const hasLower = /[a-zа-яё]/i.test(password) && password !== password.toUpperCase();
+                    const hasUpper = /[a-zа-яё]/i.test(password) && password !== password.toLowerCase();
+                    const hasDigit = /\d/.test(password);
+                    const hasNoSpaces = !/\s/.test(password);
+
+                    if (password.length < 8 || !hasLower || !hasUpper || !hasDigit || !hasNoSpaces) {
+                        setAuthMessage('Пароль: мин. 8 символов, заглавная и строчная буквы, минимум 1 цифра, без пробелов.', true);
+                        return;
+                    }
+
+                    if (password !== document.getElementById('reg-password-confirm').value) {
+                        setAuthMessage('Пароли не совпадают.', true);
+                        return;
+                    }
+
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(email)) {
+                        setAuthMessage('Некорректный формат Email.', true);
+                        return;
+                    }
+
+                    if (payload.password !== payload.passwordConfirm) {
+                        setAuthMessage('Пароли не совпадают.', true);
+                        return;
+                    }
+
+
+
+                    const submitBtn = registerForm.querySelector('button[type="submit"]');
+
+                    signUpInFlight = true;
+                    if (submitBtn) submitBtn.disabled = true;
+
+                    try {
+                        clearTokens();
+
+                        const signupPayload = await supaSignUp(payload);
+
+                        if (signupPayload?.requiresEmailVerification) {
+                            savePendingSignup(email);
+                            setAuthMessage(
+                                `Регистрация выполнена. Код подтверждения отправлен на ${email}. Проверьте почту и введите код.`,
+                                false
+                            );
+                            showVerifyForm(email);
+                            return;
+                        }
+
+                        persistAuthState(signupPayload);
+                        clearPendingSignup(email);
+                        setAuthMessage('Регистрация выполнена. Перенаправляем...', false);
+                        window.location.href = 'profile.html';
+                    } catch (err) {
+                        console.error(err);
+                        const used = handleAuthError(err, 'signup');
+                    } finally {
+                        signUpInFlight = false;
+                        if (submitBtn) submitBtn.disabled = signUpInFlight;
+                    }
+                });
+            }
+
+            if (verifyForm) {
+                verifyForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    setAuthMessage('');
+
+                    const email = document.getElementById('verify-email-hidden').value.trim().toLowerCase();
+                    const code = document.getElementById('verify-code').value.trim();
+
+                    if (!email || !code || code.length !== 6) {
+                        setAuthMessage('Введите корректный 6-значный код.', true);
+                        return;
+                    }
+
+                    const submitBtn = verifyForm.querySelector('button[type="submit"]');
+                    if (submitBtn) submitBtn.disabled = true;
+
+                    try {
+                        const payload = await supaVerifyEmail(email, code);
+                        persistAuthState(payload);
+                        clearPendingSignup(email);
+                        setAuthMessage('Email подтверждён. Перенаправляем...', false);
+                        window.location.href = 'profile.html';
+                    } catch (err) {
+                        console.error(err);
+                        handleAuthError(err, 'verify');
+                    } finally {
+                        if (submitBtn) submitBtn.disabled = false;
+                    }
+                });
+            }
+
+            const resendBtn = document.getElementById('resend-code-btn');
+            if (resendBtn) {
+                resendBtn.addEventListener('click', async () => {
+                    const email = document.getElementById('verify-email-hidden').value.trim().toLowerCase();
+                    if (!email) {
+                        setAuthMessage('Сначала укажите email для подтверждения.', true);
+                        return;
+                    }
+
+                    try {
+                        resendBtn.disabled = true;
+                        await supaResendCode(email);
+                        savePendingSignup(email);
+                        setAuthMessage(`Новый код отправлен на ${email}.`, false);
+                    } catch (err) {
+                        console.error(err);
+                        handleAuthError(err, 'verify');
+                    } finally {
+                        resendBtn.disabled = false;
+                    }
+                });
+            }
+
+            const forgotForm = document.getElementById('forgot-agro');
+            const resetForm = document.getElementById('reset-pass-agro');
+
+            if (forgotForm) {
+                forgotForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    setAuthMessage('');
+                    const email = document.getElementById('forgot-email').value.trim().toLowerCase();
+                    if (!email) return;
+
+                    const submitBtn = forgotForm.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+
+                    try {
+                        const data = await postAuth('/api/auth/forgot-password', { email });
+                        setAuthMessage('');
+                        document.getElementById('reset-email-display').textContent = email;
+                        document.getElementById('reset-email-hidden').value = email;
+                        showForm('reset');
+                    } catch (err) {
+                        console.error(err);
+                        handleAuthError(err, 'forgot');
+                    } finally {
+                        submitBtn.disabled = false;
+                    }
+                });
+            }
+
+            if (resetForm) {
+                resetForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    setAuthMessage('');
+                    const email = document.getElementById('reset-email-hidden').value.trim().toLowerCase();
+                    const token = document.getElementById('reset-code').value.trim();
+                    const password = document.getElementById('reset-new-password').value;
+
+                    if (!email || !token || !password) return;
+
+                    const submitBtn = resetForm.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+
+                    try {
+                        const data = await postAuth('/api/auth/reset-password', { email, token, password });
+                        setAuthMessage('Пароль успешно сброшен. Войдите с новым паролем.', false);
+                        showForm('login');
+                    } catch (err) {
+                        console.error(err);
+                        handleAuthError(err, 'reset');
+                    } finally {
+                        submitBtn.disabled = false;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

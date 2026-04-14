@@ -1,0 +1,28 @@
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.digital-title-bg {
+    position: relative;
+    padding: 55px 60px 50px;
+    border: none;
+    background: transparent;
+}
+
+.insert-video-block input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.digital-title-overlay {
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 768px) {
+    .digital-title-bg {
+        padding: 40px 22px 35px;
+    }
+}

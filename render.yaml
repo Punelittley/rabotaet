@@ -1,0 +1,15 @@
+# Blueprint для https://render.com — «New» → «Blueprint» → подключить репозиторий.
+# Секреты (VK_*, SUPABASE_* и т.д.) задайте в Render: Dashboard → сервис → Environment.
+
+services:
+  - type: web
+    name: nado-fix
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "20"

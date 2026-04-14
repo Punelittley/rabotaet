@@ -1,0 +1,121 @@
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.digital-title-bg {
+    position: relative;
+    padding: 55px 60px 50px;
+    border: none;
+    background: transparent;
+}
+
+.insert-video-block input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.digital-title-overlay {
+    position: relative;
+    z-index: 1;
+}
+
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.tech-item {
+    background: linear-gradient(145deg, rgba(175, 255, 0, 0.05) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(175, 255, 0, 0.2);
+    border-radius: 20px;
+    padding: 40px 30px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+.tech-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), transparent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.tech-item:hover {
+    transform: translateY(-10px);
+    border-color: var(--primary);
+    box-shadow: 0 20px 40px rgba(175, 255, 0, 0.1);
+}
+
+.tech-item:hover::before {
+    opacity: 1;
+}
+
+.tech-number {
+    font-size: 4rem;
+    font-weight: 700;
+    color: rgba(175, 255, 0, 0.15);
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    line-height: 1;
+}
+
+.tech-icon {
+    width: 48px;
+    height: 48px;
+    color: var(--primary);
+    margin-bottom: 20px;
+}
+
+.tech-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.tech-content p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 20px;
+}
+
+.tech-link {
+    color: var(--primary);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tech-link:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+    .tech-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .tech-item {
+        padding: 30px 25px;
+    }
+}
+
+@media (max-width: 768px) {
+    .digital-title-bg {
+        padding: 40px 22px 35px;
+    }
+}

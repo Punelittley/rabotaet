@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог продукции | Зелёный край</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/products.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="p-page">
+        <header class="p-hero-simple reveal">
+            <div class="p-container">
+                <h1>ПРОДУКЦИЯ</h1>
+            </div>
+        </header>
+
+        <div class="p-layout p-container">
+            <section class="p-content">
+                <div class="p-grid" id="product-list">
+                </div>
+            </section>
+            <aside class="p-sidebar reveal">
+                <div class="filter-group">
+                    <h3>Категории</h3>
+                    <ul class="filter-list" id="category-filter">
+                        <li class="active" data-cat="Все">Все культуры</li>
+                        <li data-cat="Зерновые">Зерновые</li>
+                        <li data-cat="Бобовые">Бобовые</li>
+                        <li data-cat="Масличные">Масличные</li>
+                        <li data-cat="Корма">Корма</li>
+                    </ul>
+                </div>
+
+                <div class="filter-group">
+                    <h3>Статус</h3>
+                    <label class="check-container">В наличии
+                        <input type="checkbox" checked id="stock-only">
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+        let allProducts = [];
+
+        function setupFavoriteClicks() {
+            const list = document.getElementById('product-list');
+            if (list.dataset.favDelegate) return;
+            list.dataset.favDelegate = '1';
+            list.addEventListener('click', (e) => {
+                const btn = e.target.closest('.p-card-fav');
+                if (!btn) return;
+                e.preventDefault();
+                e.stopPropagation();
+                const id = btn.dataset.id;
+                const p = allProducts.find((x) => String(x.id) === String(id));
+                if (!p || typeof window.toggleProductFavorite !== 'function') return;
+                const nowFav = window.toggleProductFavorite({
+                    id: p.id,
+                    name: p.name,
+                    cat: p.cat,
+                    img: p.img,
+                    stock: p.stock
+                });
+                btn.classList.toggle('is-fav', nowFav);
+                btn.setAttribute('aria-pressed', String(nowFav));
+                btn.setAttribute('aria-label', nowFav ? 'Убрать из избранного' : 'Добавить в избранное');
+            });
+        }
+
+        async function initCatalog() {
+            setupFavoriteClicks();
+            const res = await fetch('/api/products');
+            allProducts = await res.json();
+            renderProducts(allProducts);
+            setupFilters();
+        }
+
+        function renderProducts(products) {
+            const list = document.getElementById('product-list');
+            if (products.length === 0) {
+                list.innerHTML = '<p class="no-results">По вашему запросу ничего не найдено.</p>';
+                return;
+            }
+
+            list.innerHTML = products.map(p => {
+                const favOn = typeof window.isProductFavorite === 'function' && window.isProductFavorite(p.id);
+                return `
+                <article class="p-card reveal">
+                    <button type="button" class="p-card-fav${favOn ? ' is-fav' : ''}" data-id="${p.id}" aria-pressed="${favOn}" aria-label="${favOn ? 'Убрать из избранного' : 'Добавить в избранное'}">
+                        <svg class="p-card-fav-icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    </button>
+                    <a href="product_info.html?id=${p.id}">
+                        <div class="p-card-img">
+                            <img src="${p.img}" alt="${p.name}">
+                            <div class="p-card-badge">${p.stock}</div>
+                        </div>
+                        <div class="p-card-body">
+                            <span class="p-card-cat">${p.cat}</span>
+                            <h3>${p.name}</h3>
+                            <div class="p-card-specs">
+                                ${p.specs.map(s => `<span>${s}</span>`).join('')}
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <!-- New Pricing and Cart Actions Block -->
+                    <div class="p-card-actions">
+                        <!-- Pseudo-random price based on ID for mockup purposes -->
+                        <span class="p-card-price">${(p.id * 8500 % 60000 + 15000).toLocaleString()} ₽ / т</span>
+                        <button class="action-btn-cart" onclick="addToCart('${p.id}', '${p.name.replace(/'/g, "\\'")}', '${p.cat}', ${p.id * 8500 % 60000 + 15000}, '${p.img}')">
+                            В корзину
+                        </button>
+                    </div>
+                </article>
+            `;
+            }).join('');
+            
+            setTimeout(() => {
+                document.querySelectorAll('.p-card.reveal').forEach(el => {
+                    if (typeof observer !== 'undefined') observer.observe(el);
+                });
+            }, 100);
+        }
+
+        function setupFilters() {
+            document.querySelectorAll('#category-filter li').forEach(li => {
+                li.addEventListener('click', () => {
+                    document.querySelector('#category-filter li.active').classList.remove('active');
+                    li.classList.add('active');
+                    applyFilters();
+                });
+            });
+            document.getElementById('stock-only').addEventListener('change', applyFilters);
+        }
+
+        function applyFilters() {
+            const cat = document.querySelector('#category-filter li.active').dataset.cat;
+            let filtered = allProducts;
+            
+            if (cat !== 'Все') {
+                filtered = filtered.filter(p => p.cat === cat);
+            }
+            
+            renderProducts(filtered);
+        }
+
+        document.addEventListener("DOMContentLoaded", initCatalog);
+    </script>
+</body>
+</html>

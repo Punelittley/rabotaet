@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Галерея | Зелёный край</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/gallery.css">
+</head>
+<body class="gallery-page">
+    <div id="header-placeholder"></div>
+
+    <main class="g-wrapper">
+        <header class="hero-simple reveal">
+            <div class="container-simple">
+                <h1>ФОТО ГАЛЕРЕЯ</h1>
+            </div>
+        </header>
+        <section class="g-container">
+            <div class="g-grid" id="gallery-grid">
+            </div>
+        </section>
+    </main>
+    <div id="gallery-modal" class="g-modal" onclick="closeModal()">
+        <div class="modal-frame">
+            <img id="modal-img" src="" alt="">
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+        let items = [];
+
+        async function initGallery() {
+            const res = await fetch('/api/gallery');
+            items = await res.json();
+            render('Все');
+            
+            document.querySelectorAll('.g-btn').forEach(btn => {
+                btn.onclick = () => {
+                    document.querySelector('.g-btn.active').classList.remove('active');
+                    btn.classList.add('active');
+                    render(btn.dataset.filter);
+                };
+            });
+        }
+
+        function render(filter) {
+            const grid = document.getElementById('gallery-grid');
+            const filtered = filter === 'Все' ? items : items.filter(i => i.cat === filter);
+
+            grid.innerHTML = filtered.map((item, index) => {
+                const isBig = (index === 0 || index === 5) ? 'g-item-big' : '';
+                return `
+                <div class="g-item ${isBig} reveal" onclick="openModal('${item.img}', '${item.title}', '${item.loc}', ${index+1})">
+                    <div class="g-card">
+                        <img src="${item.img}" alt="${item.title}">
+                        <div class="g-data-overlay">
+                            <div class="g-meta">
+                                <span class="g-cat-tag">${item.cat}</span>
+                            </div>
+                            <h3>${item.title}</h3>
+                            <div class="g-loc-row">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--primary)"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+                                <span>${item.loc}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+            if(window.initAnimations) initAnimations();
+        }
+
+        function openModal(src, title, loc, id) {
+            const m = document.getElementById('gallery-modal');
+            document.getElementById('modal-img').src = src;
+            m.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('gallery-modal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.addEventListener("DOMContentLoaded", initGallery);
+    </script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+.n-page {
+    background: var(--bg);
+}
+
+.hero-simple {
+    padding-top: 160px;
+    padding-bottom: 20px;
+    margin-bottom: 0px;
+}
+
+.hero-simple h1 {
+    line-height: 0.9 !important; 
+    margin: 0;
+}
+
+.hero-simple h1 span {
+    display: block;
+    margin-top: 0 !important;
+}
+
+.n-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 40px;
+    padding-top: 0px; 
+}
+
+.n-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: var(--transition);
+    position: relative;
+}
+
+.n-card:hover {
+    border-color: var(--primary);
+}
+
+.n-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.n-img-box {
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+    background: #000;
+}
+
+.n-card[style*="span 12"] .n-img-box {
+    height: 500px;
+}
+
+.n-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.7;
+    transition: transform 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.n-card:hover .n-img-box img {
+    transform: scale(1.05);
+    opacity: 1;
+}
+
+.n-date {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.65rem;
+    padding: 5px 12px;
+    font-weight: 800;
+    border: 1px solid var(--border);
+}
+
+.n-body {
+    padding: 40px;
+}
+
+.n-cat {
+    color: var(--primary);
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: block;
+    margin-bottom: 20px;
+}
+
+.n-body h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.n-card[style*="span 12"] .n-body h2 {
+    font-size: 2.8rem;
+}
+
+.n-body p {
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.n-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+    padding-top: 25px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.n-arrow {
+    color: var(--primary);
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.n-card:hover .n-arrow {
+    transform: translateX(10px);
+}
+
+@media (max-width: 1024px) {
+    .n-card[style*="span 4"] {
+        grid-column: span 6 !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .n-card {
+        grid-column: span 12 !important;
+    }
+    .n-card[style*="span 12"] .n-body h2 {
+        font-size: 1.8rem;
+    }
+}

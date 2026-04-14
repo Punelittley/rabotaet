@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новость | Зелёный край</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/news.css">
+    <style>
+        :root {
+            --ni-hero-height: 70vh;
+        }
+
+        .ni-hero {
+            position: relative;
+            min-height: 80vh;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 120px;
+            padding-top: 250px;
+        }
+
+        .ni-hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .ni-hero-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 10s linear;
+        }
+
+        .ni-hero:hover .ni-hero-bg img {
+            transform: scale(1.1);
+        }
+
+        .ni-hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, 
+                rgba(0,0,0,0.2) 0%, 
+                rgba(0,0,0,0.4) 50%, 
+                var(--bg) 100%);
+            z-index: 0;
+        }
+
+        .ni-hero-content {
+            position: relative;
+            z-index: 1;
+            padding: 0 6%;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            color: #ffffff; 
+        }
+
+        .ni-cat-tag {
+            display: inline-block;
+            padding: 6px 16px;
+            background: var(--primary);
+            color: #000;
+            font-size: 0.7rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            border-radius: 2px;
+        }
+
+        .ni-title {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            line-height: 0.9;
+            margin-bottom: 30px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #ffffff; 
+        }
+
+        .ni-meta-row {
+            display: flex;
+            gap: 40px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7); 
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .ni-main {
+            padding: 80px 6%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .ni-article {
+            font-size: 1.25rem;
+            line-height: 1.9;
+            color: var(--text);
+        }
+
+        .ni-article p {
+            margin-bottom: 35px;
+            opacity: 0.9;
+        }
+
+        .ni-article blockquote {
+            padding-left: 30px;
+            border-left: 4px solid var(--primary);
+            margin: 50px 0;
+            font-style: italic;
+            font-size: 1.5rem;
+            color: var(--text);
+            line-height: 1.4;
+        }
+
+        .ni-footer-actions {
+            margin-top: 100px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn-lux {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            transition: var(--transition);
+        }
+
+        .back-btn-lux:hover {
+            color: var(--primary);
+            gap: 25px;
+        }
+
+        .ni-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--primary);
+            z-index: 1001;
+            width: 0%;
+            transition: width 0.1s ease-out;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .ni-glass-info {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 30px;
+            display: inline-flex;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        body.light-theme .ni-glass-info {
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            :root { --ni-hero-height: 60vh; }
+            .ni-meta-row { flex-direction: column; gap: 10px; }
+            .ni-glass-info { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ni-progress" id="read-progress"></div>
+    <div id="header-placeholder"></div>
+
+    <main id="news-detail-root">
+        <div style="height: 100vh; display: flex; align-items: center; justify-content: center;">
+            <div class="loader"></div>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+        async function initPage() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+
+            if (!id) {
+                window.location.href = 'news.html';
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/news/${id}`);
+                if (!res.ok) throw new Error('News not found');
+                const item = await res.json();
+
+                renderDetail(item);
+                initProgress();
+                if(window.initAnimations) initAnimations();
+            } catch (err) {
+                renderError();
+            }
+        }
+
+        function renderDetail(item) {
+            const root = document.getElementById('news-detail-root');
+            root.innerHTML = `
+                <article>
+                    <section class="ni-hero">
+                        <div class="ni-hero-bg">
+                            <img src="${item.img}" alt="${item.title}">
+                        </div>
+                        <div class="ni-hero-overlay"></div>
+                        <div class="ni-hero-content reveal">
+                            <span class="ni-cat-tag">${item.cat}</span>
+                            <h1 class="ni-title">${item.title}</h1>
+                            <div class="ni-meta-row">
+                                <span>${item.date}</span>
+                                <span>•</span>
+                                <span>ЧИТАТЬ 5 МИНУТ</span>
+                                <span>•</span>
+                                <span>АВТОР: АНАЛИТИКА ЗЕЛЁНЫЙ КРАЙ</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="ni-main">
+                        <div class="ni-article reveal">
+                            <p class="lead" style="font-size: 1.5rem; color: var(--text); font-weight: 600; margin-bottom: 50px; line-height: 1.5;">
+                                ${item.excerpt || ''}
+                            </p>
+                            
+                            ${item.content || getDefaultContent()}
+                            
+                            <blockquote>
+                                "Будущее сельского хозяйства — в синергии природных процессов и высокоточных цифровых технологий. Мы не просто собираем урожай, мы управляем эффективностью каждого квадратного метра почвы."
+                            </blockquote>
+                            
+                            <p>На сегодняшний день «Зелёный край» является ключевым игроком в сельскохозяйственном секторе России. Наши решения позволяют сократить издержки на 30% и повысить устойчивость производства.</p>
+                        </div>
+
+                        <div class="ni-footer-actions reveal">
+                            <a href="news.html" class="back-btn-lux">
+                                <span style="font-size: 1.5rem;">←</span>
+                                НАЗАД К СПИСКУ НОВОСТЕЙ
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Related News Section -->
+                    <section class="section ni-related" style="background: var(--surface); border-top: 1px solid var(--border);">
+                        <div class="n-container">
+                            <h2 class="reveal" style="margin-bottom: 60px; text-transform: uppercase; letter-spacing: 2px;">Другие новости</h2>
+                            <div class="n-grid" id="related-news-grid">
+                                <!-- Loaded via JS -->
+                            </div>
+                        </div>
+                    </section>
+                </article>
+            `;
+            loadRelatedNews(item.id);
+        }
+
+        async function loadRelatedNews(currentId) {
+            try {
+                const res = await fetch('/api/news');
+                const allNews = await res.json();
+                const related = allNews
+                    .filter(n => String(n.id) !== String(currentId))
+                    .slice(0, 3);
+
+                const grid = document.getElementById('related-news-grid');
+                if (!grid) return;
+
+                grid.innerHTML = related.map(item => `
+                    <article class="n-card reveal" style="grid-column: span 4">
+                        <a href="news_info.html?id=${item.id}" class="n-card-link">
+                            <div class="n-img-box" style="height: 250px;">
+                                <img src="${item.img}" alt="${item.title}">
+                                <div class="n-date">${item.date}</div>
+                            </div>
+                            <div class="n-body" style="padding: 25px;">
+                                <span class="n-cat">${item.cat}</span>
+                                <h3 style="font-size: 1.2rem; margin-bottom: 15px;">${item.title}</h3>
+                                <div class="n-footer" style="padding-top: 15px;">
+                                </div>
+                            </div>
+                        </a>
+                    </article>
+                `).join('');
+
+                if(window.initAnimations) initAnimations();
+            } catch (err) {
+                console.error("Error loading related news:", err);
+            }
+        }
+
+        function getDefaultContent() {
+            return `
+                <p>В современных реалиях агропромышленный комплекс сталкивается с беспрецедентными вызовами. От климатических изменений до необходимости интенсификации производства при сохранении плодородия земель — каждый фактор требует научно обоснованного подхода.</p>
+                <p>«Зелёный край» успешно применяет интегрированную систему управления, которая в реальном времени контролирует качество и логистику. Это позволяет принимать оперативные решения и достигать высоких результатов.</p>
+                <p>Мы продолжаем расширять нашу сеть датчиков и беспилотных комплексов, делая "Интеллектуальное земледелие" доступным стандартом для каждого крупного хозяйства в стране.</p>
+            `;
+        }
+
+        function renderError() {
+            document.getElementById('news-detail-root').innerHTML = `
+                <div style="padding: 200px 6%; text-align: center;">
+                    <h1 style="font-size: 4rem;">404</h1>
+                    <p>Новость не найдена или была удалена.</p>
+                    <a href="news.html" class="cta-button" style="display: inline-block; margin-top: 30px;">Вернуться к новостям</a>
+                </div>
+            `;
+        }
+
+        function initProgress() {
+            const bar = document.getElementById('read-progress');
+            window.addEventListener('scroll', () => {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                bar.style.width = scrolled + "%";
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", initPage);
+    </script>
+</body>
+</html>

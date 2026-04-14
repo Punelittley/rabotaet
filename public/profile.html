@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет | Зелёный край</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/profile.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="profile-page">
+    <div id="header-placeholder"></div>
+    <div class="profile-bg">
+        <div class="bg-overlay"></div>
+        <img src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&w=1600" alt="">
+    </div>
+
+    <main class="terminal-container">
+        <aside class="terminal-sidebar reveal">
+            <div class="user-profile-header">
+                <div class="user-avatar-frame">
+                    <img id="user-avatar" src="" alt="Аватар">
+                    <div class="pulse-indicator"></div>
+                </div>
+                <div class="user-meta">
+                    <h2 id="user-name">Загрузка...</h2>
+                    <span id="user-role">Оператор системы</span>
+                </div>
+            </div>
+
+            <nav class="terminal-nav">
+                <button class="t-nav-btn active" onclick="switchTab('overview', this)">
+                    <span class="btn-line"></span> ГЛАВНАЯ ПАНЕЛЬ
+                </button>
+                <button class="t-nav-btn" onclick="switchTab('orders', this)">
+                    <span class="btn-line"></span> МОИ ЗАКАЗЫ
+                </button>
+                <button class="t-nav-btn" onclick="switchTab('service-requests', this)">
+                    <span class="btn-line"></span> ЗАЯВКИ НА СЕРВИС
+                </button>
+                <button class="t-nav-btn" onclick="switchTab('notifications', this)">
+                    <span class="btn-line"></span> УВЕДОМЛЕНИЯ
+                    <span class="notif-badge" id="notif-badge" style="display:none;">0</span>
+                </button>
+                <button class="t-nav-btn" onclick="switchTab('favorites', this)">
+                    <span class="btn-line"></span> ИЗБРАННОЕ
+                </button>
+                <button class="t-nav-btn" onclick="switchTab('history', this)">
+                    <span class="btn-line"></span> ИСТОРИЯ
+                </button>
+                <button class="t-nav-btn" onclick="switchTab('settings', this)">
+                    <span class="btn-line"></span> НАСТРОЙКИ
+                </button>
+            </nav>
+
+
+
+            <button class="exit-btn" id="logout-trigger">Выйти</button>
+        </aside>
+
+        <section class="terminal-workspace">
+            <div id="tab-overview" class="t-tab active">
+                <div class="workspace-header reveal">
+                    <div class="header-text">
+                        <h1>ПАНЕЛЬ <span>УПРАВЛЕНИЯ</span></h1>
+                    </div>
+                </div>
+
+
+                <div class="metrics-row">
+                    <div class="m-glass-card reveal" style="border-left: 2px solid var(--primary); border-radius: 0;">
+                        <label>ВСЕГО ЗАКАЗОВ</label>
+                        <div class="m-big-val" id="ov-total-orders">0</div>
+                        <div class="m-sub-label">За всё время</div>
+                    </div>
+                    <div class="m-glass-card reveal" style="border-left: 2px solid #ccc; border-radius: 0;">
+                        <label>АКТИВНЫЕ</label>
+                        <div class="m-big-val" id="ov-active-orders">0</div>
+                        <div class="m-sub-label">Новые + В обработке</div>
+                    </div>
+                    <div class="m-glass-card reveal" style="border-left: 2px solid #ccc; border-radius: 0;">
+                        <label>ВЫПОЛНЕНО</label>
+                        <div class="m-big-val" id="ov-done-orders">0</div>
+                        <div class="m-sub-label">Успешно завершены</div>
+                    </div>
+                    <div class="m-glass-card reveal" style="border-left: 2px solid #ccc; border-radius: 0;">
+                        <label>ИЗБРАННОЕ</label>
+                        <div class="m-big-val" id="ov-favorites">0</div>
+                        <div class="m-sub-label">Сохранённых товаров</div>
+                    </div>
+
+                </div>
+
+                <div class="data-section">
+                    <div class="chart-glass reveal">
+                        <h3>ПОСЛЕДНИЕ ЗАКАЗЫ</h3>
+                        <div id="ov-recent-orders" class="custom-log">
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Загрузка...</p>
+                        </div>
+                    </div>
+                    <div class="log-glass reveal">
+                        <h3>УВЕДОМЛЕНИЯ</h3>
+                        <div id="ov-recent-notifs" class="custom-log">
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Нет уведомлений</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-orders" class="t-tab">
+                <div class="workspace-header">
+                    <div class="header-text">
+                        <h1>МОИ <span>ЗАКАЗЫ</span></h1>
+                    </div>
+                </div>
+
+                <div class="orders-stats" id="orders-stats-row">
+                    <div class="os-card"><label>НОВЫЕ</label><div class="os-val" id="os-new">0</div></div>
+                    <div class="os-card"><label>В ОБРАБОТКЕ</label><div class="os-val" id="os-processing">0</div></div>
+                    <div class="os-card"><label>ВЫПОЛНЕНЫ</label><div class="os-val color-primary" id="os-done">0</div></div>
+                    <div class="os-card"><label>ОТМЕНЕНЫ</label><div class="os-val" id="os-cancelled">0</div></div>
+                </div>
+
+                <div class="orders-filter-bar">
+                    <button class="of-btn active" data-filter="all">Все</button>
+                    <button class="of-btn" data-filter="new">Новые</button>
+                    <button class="of-btn" data-filter="processing">В обработке</button>
+                    <button class="of-btn" data-filter="done">Выполнены</button>
+                    <button class="of-btn" data-filter="cancelled">Отменены</button>
+                </div>
+
+                <div id="logistics-container" class="logistics-map-wrap reveal" style="display: none;">
+                    <div class="logistics-header">
+                        <h3>ОТСЛЕЖИВАНИЕ ГРУЗА: <span id="track-order-id">ORD-000</span></h3>
+                        <button class="close-map-btn" onclick="closeTracking()">ЗАКРЫТЬ КАРТУ</button>
+                    </div>
+                    <div id="order-map" style="height: 400px; width: 100%; border-radius: 4px; border: 1px solid var(--border);"></div>
+                    <div class="logistics-info-panel">
+                        <div class="li-item"><span>СТАТУС:</span> <strong id="track-status">В ПУТИ</strong></div>
+                        <div class="li-item"><span>ЛОКАЦИЯ:</span> <strong id="track-desc">Груз в пути</strong></div>
+                    </div>
+                </div>
+
+                <div class="orders-table-wrap">
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>ДАТА</th>
+                                <th>ПРОДУКЦИЯ</th>
+                                <th>ОБЪЁМ</th>
+                                <th>УСЛУГИ</th>
+                                <th>ДОК.</th>
+                                <th>СТАТУС</th>
+                                <th>ДЕЙСТВИЯ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-tbody"></tbody>
+                    </table>
+                    <div id="orders-empty" class="empty-state" style="display:none;">
+                        <p>Заказов пока нет</p>
+                    </div>
+                </div>
+            </div>
+            <div id="tab-service-requests" class="t-tab">
+                <div class="workspace-header">
+                    <div class="header-text">
+                        <h1>ЗАЯВКИ НА <span>СЕРВИС</span></h1>
+                    </div>
+                </div>
+                <div class="orders-table-wrap">
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>ДАТА</th>
+                                <th>УСЛУГА</th>
+                                <th>ОБЪЕМ</th>
+                                <th>СРОКИ</th>
+                                <th>ОПЦИИ</th>
+                                <th>СТАТУС</th>
+                            </tr>
+                        </thead>
+                        <tbody id="service-requests-tbody"></tbody>
+                    </table>
+                    <div id="sr-empty" class="empty-state" style="display:none;">
+                        <p>Интерактивных заявок пока нет</p>
+                        <a href="services.html" class="cta-button-sm">Выбрать услугу</a>
+                    </div>
+                </div>
+            </div>
+            <div id="tab-notifications" class="t-tab">
+                <div class="workspace-header">
+                    <div class="header-text">
+                        <h1>УВЕДОМЛЕНИЯ</h1>
+                    </div>
+                    <button class="mark-all-read-btn" id="mark-all-read">ОТМЕТИТЬ ВСЕ КАК ПРОЧИТАННЫЕ</button>
+                </div>
+                <div id="notif-list" class="notif-list">
+                    <div class="empty-state-centered"><p>Нет уведомлений</p></div>
+                </div>
+            </div>
+            <div id="tab-favorites" class="t-tab">
+                <div class="workspace-header">
+                    <div class="header-text">
+                        <h1>ИЗБРАННОЕ</h1>
+                    </div>
+                </div>
+                <div class="fav-grid" id="fav-grid">
+                    <div class="empty-state-centered" id="fav-empty">
+                        <p>Вы ещё не добавили товары в избранное</p>
+                        <a href="products.html" class="cta-button-sm">Перейти в каталог</a>
+                    </div>
+                </div>
+            </div>
+            <div id="tab-history" class="t-tab">
+                <div class="workspace-header">
+                    <div class="header-text">
+                        <h1>ИСТОРИЯ</h1>
+                    </div>
+                </div>
+                <div id="history-list" class="history-list">
+                    <div class="empty-state-centered"><p>История действий пуста</p></div>
+                </div>
+            </div>
+            <div id="tab-settings" class="t-tab">
+                <div class="workspace-header">
+                    <div class="header-text">
+                        <h1>НАСТРОЙКИ <span>ПРОФИЛЯ</span></h1>
+                    </div>
+                </div>
+
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3>ОСНОВНАЯ ИНФОРМАЦИЯ</h3>
+                            <button class="edit-profile-btn" id="toggle-edit-btn">ИЗМЕНИТЬ</button>
+                        </div>
+                        <div class="settings-view" id="settings-view">
+                            <div class="sv-row"><span class="sv-label">Имя</span><span class="sv-value" id="view-name">—</span></div>
+                            <div class="sv-row"><span class="sv-label">Фамилия</span><span class="sv-value" id="view-surname">—</span></div>
+                            <div class="sv-row"><span class="sv-label">Эл. почта</span><span class="sv-value" id="view-email">—</span></div>
+                            <div class="sv-row"><span class="sv-label">Организация</span><span class="sv-value" id="view-org">—</span></div>
+                            <div class="sv-row"><span class="sv-label">Должность</span><span class="sv-value" id="view-position">—</span></div>
+                            <div class="sv-row"><span class="sv-label">Телефон</span><span class="sv-value" id="view-phone">—</span></div>
+                            <div class="sv-row"><span class="sv-label">Регион</span><span class="sv-value" id="view-region">—</span></div>
+                            <div class="sv-row"><span class="sv-label">ИНН</span><span class="sv-value" id="view-inn">—</span></div>
+                        </div>
+                        <div class="settings-form" id="settings-edit" style="display: none;">
+                            <div class="sf-group">
+                                <label>Имя</label>
+                                <input type="text" id="set-name" placeholder="Ваше имя">
+                            </div>
+                            <div class="sf-group">
+                                <label>Фамилия</label>
+                                <input type="text" id="set-surname" placeholder="Ваша фамилия">
+                            </div>
+                            <div class="sf-group">
+                                <label>Эл. почта</label>
+                                <input type="email" id="set-email" readonly placeholder="email@example.com">
+                            </div>
+                            <div class="sf-group">
+                                <label>Организация</label>
+                                <input type="text" id="set-org" placeholder="Название организации">
+                            </div>
+                            <div class="sf-group">
+                                <label>Должность</label>
+                                <input type="text" id="set-position" placeholder="Ваша должность">
+                            </div>
+                            <div class="sf-group">
+                                <label>Телефон</label>
+                                <input type="tel" id="set-phone" placeholder="+7 (___) ___-__-__">
+                            </div>
+                            <div class="sf-group">
+                                <label>Регион</label>
+                                <input type="text" id="set-region" placeholder="Ваш регион">
+                            </div>
+                            <div class="sf-group">
+                                <label>ИНН</label>
+                                <input type="text" id="set-inn" placeholder="ИНН компании">
+                            </div>
+                            <div style="display: flex; gap: 15px;">
+                                <button class="save-btn" id="save-profile-btn">СОХРАНИТЬ</button>
+                                <button class="save-btn" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted);" id="cancel-edit-btn">ОТМЕНА</button>
+                            </div>
+                            <div class="save-status" id="save-status"></div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>БЕЗОПАСНОСТЬ</h3>
+                        <div class="settings-form" id="security-step-1">
+                            <p class="sf-help-text">Для смены пароля необходимо подтверждение через Email.</p>
+                            <button class="save-btn" id="request-reset-btn">СБРОСИТЬ ПАРОЛЬ</button>
+                        </div>
+
+                        <div class="settings-form" id="security-step-2" style="display:none;">
+                            <p class="sf-help-text" style="color: var(--primary); font-size: 0.75rem; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">
+                                Введите 6-значный код из письма, отправленного на вашу почту
+                            </p>
+                            <div class="sf-group">
+                                <label>Код подтверждения</label>
+                                <input type="text" id="reset-code-input" placeholder="000000" maxlength="6">
+                            </div>
+                            <button class="save-btn" id="verify-reset-code-btn">ПОДТВЕРДИТЬ КОД</button>
+                            <button class="text-btn-sm" onclick="showSecurityStep(1)">ОТМЕНА</button>
+                        </div>
+
+                        <div class="settings-form" id="security-step-3" style="display:none;">
+                            <div class="sf-group">
+                                <label>Новый пароль</label>
+                                <input type="password" id="reset-new-pass" placeholder="Минимум 6 символов">
+                            </div>
+                            <div class="sf-group">
+                                <label>Подтвердите пароль</label>
+                                <input type="password" id="reset-confirm-pass" placeholder="Повторите пароль">
+                            </div>
+                            <button class="save-btn" id="final-reset-btn">ОБНОВИТЬ ПАРОЛЬ</button>
+                        </div>
+                        
+                        <div class="save-status" id="pass-status"></div>
+
+
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+    (function() {
+        const TOKEN_KEY = 'agro_access_token';
+        const USER_KEY  = 'agro_user';
+        const ORDERS_KEY = 'agro_orders';
+        const NOTIFS_KEY = 'agro_notifications';
+        const FAVS_KEY = 'agro_favorites';
+        const HISTORY_KEY = 'agro_history';
+
+        function getToken() { return localStorage.getItem(TOKEN_KEY); }
+        function getUser() {
+            try { 
+                const u = JSON.parse(localStorage.getItem(USER_KEY) || '{}');
+                if (u.raw_user_meta_data && !u.user_metadata) {
+                    u.user_metadata = u.raw_user_meta_data;
+                }
+                return u;
+            } catch { return {}; }
+        }
+        async function fetchCurrentUser() {
+            const token = getToken();
+            if (!token) return null;
+
+            try {
+                const res = await fetch('/api/auth/me', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ access_token: token })
+                });
+
+                if (res.status === 401 || res.status === 403) {
+                    logout();
+                    return null;
+                }
+
+                if (!res.ok) return null;
+                const data = await res.json();
+                const user = data?.user || data;
+                if (user && user.raw_user_meta_data && !user.user_metadata) {
+                    user.user_metadata = user.raw_user_meta_data;
+                }
+                return user;
+            } catch (e) {
+                console.error('Fetch me error:', e);
+                return null;
+            }
+        }
+        function normalizeUserMeta(rawMeta = {}, oldMeta = {}) {
+            const meta = { ...(oldMeta || {}), ...(rawMeta || {}) };
+            const pick = (...keys) => {
+                for (const key of keys) {
+                    const value = meta?.[key];
+                    if (value === undefined || value === null || value === 'undefined') continue;
+                    const normalized = String(value).trim();
+                    if (normalized) return normalized;
+                }
+                return '';
+            };
+
+            return {
+                ...meta,
+                name: pick('name', 'full_name', 'firstName', 'first_name', 'given_name', 'Имя'),
+                surname: pick('surname', 'lastName', 'last_name', 'family_name', 'Фамилия'),
+
+                organization: pick('organization'),
+                position: pick('position'),
+                phone: pick('phone'),
+                region: pick('region'),
+                inn: pick('inn'),
+            };
+        }
+        function buildDisplayName(meta, email) {
+            const normalizedMeta = normalizeUserMeta(meta || {});
+            let baseName = '';
+            if (normalizedMeta.name && normalizedMeta.surname) {
+                baseName = normalizedMeta.name + ' ' + normalizedMeta.surname;
+            } else if (normalizedMeta.name) {
+                baseName = normalizedMeta.name;
+            } else if (normalizedMeta.surname) {
+                baseName = normalizedMeta.surname;
+            }
+            
+            if (baseName.trim() && baseName.trim() !== 'undefined') {
+                return baseName.trim();
+            }
+            return String(email || 'пользователь').split('@')[0];
+        }
+        function buildRole(meta) {
+            const normalizedMeta = normalizeUserMeta(meta || {});
+            const parts = [normalizedMeta.position, normalizedMeta.organization].filter(Boolean);
+            return parts.length ? parts.join(' • ') : 'Пользователь';
+        }
+        function syncUserToUI(user) {
+            const email = user?.email || 'пользователь';
+            const meta = normalizeUserMeta(user?.user_metadata || {});
+            const displayName = buildDisplayName(meta, email);
+
+            document.getElementById('user-name').innerText = displayName;
+            document.getElementById('user-role').innerText = buildRole(meta);
+            document.getElementById('user-avatar').src =
+                'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) + '&background=afff00&color=000&bold=true&size=160';
+
+            if (user?.last_sign_in_at) {
+                const d = new Date(user.last_sign_in_at);
+                const lastLoginEl = document.getElementById('last-login');
+                if (lastLoginEl) {
+                    lastLoginEl.innerText =
+                        d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
+                }
+            }
+        }
+        async function getOrders() {
+            const token = getToken();
+            if (!token) return [];
+            try {
+                const res = await fetch('/api/orders', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                return await res.json();
+            } catch (e) {
+                console.error('Fetch orders error:', e);
+                return [];
+            }
+        }
+
+        function getNotifs() {
+            try { return JSON.parse(localStorage.getItem(NOTIFS_KEY) || '[]'); } catch { return []; }
+        }
+        function saveNotifs(arr) { localStorage.setItem(NOTIFS_KEY, JSON.stringify(arr)); }
+
+        function getFavs() {
+            try { return JSON.parse(localStorage.getItem(FAVS_KEY) || '[]'); } catch { return []; }
+        }
+        function saveFavs(arr) { localStorage.setItem(FAVS_KEY, JSON.stringify(arr)); }
+
+        function getHistory() {
+            try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
+        }
+        function saveHistory(arr) { localStorage.setItem(HISTORY_KEY, JSON.stringify(arr)); }
+        async function addHistory(action) {
+            try {
+                await fetch('/api/history', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + getToken()
+                    },
+                    body: JSON.stringify({ action })
+                });
+            } catch (e) { console.error("Failed to add history", e); }
+            
+            const h = getHistory();
+            h.unshift({ action, time: new Date().toISOString() });
+            if (h.length > 50) h.length = 50;
+            saveHistory(h);
+        }
+
+        async function addNotif(text) {
+            try {
+                await fetch('/api/notifications', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + getToken()
+                    },
+                    body: JSON.stringify({ text })
+                });
+            } catch (e) { console.error("Failed to add notification", e); }
+
+            const n = getNotifs();
+            n.unshift({ text, time: new Date().toISOString(), read: false });
+            saveNotifs(n);
+            updateNotifBadge();
+        }
+
+        function updateNotifBadge() {
+            const n = getNotifs();
+            const unread = n.filter(x => !x.read).length;
+            const badge = document.getElementById('notif-badge');
+            if (badge) {
+                badge.textContent = unread;
+                badge.style.display = unread > 0 ? 'inline-flex' : 'none';
+            }
+        }
+
+        function formatDate(iso) {
+            if (!iso) return '—';
+            const d = new Date(iso);
+            return d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
+        }
+
+        function formatDateShort(iso) {
+            if (!iso) return '—';
+            return new Date(iso).toLocaleDateString('ru-RU');
+        }
+
+        const STATUS_MAP = {
+            'new': { label: 'Новый', cls: 'status-new' },
+            'processing': { label: 'В обработке', cls: 'status-processing' },
+            'done': { label: 'Выполнен', cls: 'status-done' },
+            'cancelled': { label: 'Отменён', cls: 'status-cancelled' }
+        };
+
+        function logout() {
+            localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem(USER_KEY);
+            window.location.href = 'auth.html';
+        }
+
+        if (!getToken()) {
+            window.location.href = 'auth.html';
+            return;
+        }
+
+        let allProducts = [];
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            let user = getUser();
+            const token = getToken();
+            
+            if (token) {
+                const freshUser = await fetchCurrentUser();
+                if (freshUser) {
+                    user = freshUser;
+                    localStorage.setItem(USER_KEY, JSON.stringify(freshUser));
+                }
+            }
+
+            const safeMetaObj = user.user_metadata || user.raw_user_meta_data || {};
+            user.user_metadata = normalizeUserMeta(safeMetaObj, user.raw_user_meta_data);
+
+            const meta = user.user_metadata;
+            syncUserToUI(user);
+
+            document.getElementById('logout-trigger').addEventListener('click', logout);
+            try {
+                const res = await fetch('/api/products');
+                allProducts = await res.json();
+            } catch(e) {
+                allProducts = [];
+            }
+
+            const initSteps = [
+                { name: 'Обзор', fn: initOverviewTab },
+                { name: 'Заказы', fn: initOrdersTab },
+                { name: 'Сервисы', fn: initServiceRequestsTab },
+                { name: 'Уведомления', fn: initNotificationsTab },
+                { name: 'Избранное', fn: initFavoritesTab },
+                { name: 'История', fn: initHistoryTab },
+                { name: 'Настройки', fn: () => initSettingsTab(user, meta) },
+                { name: 'Бадж', fn: updateNotifBadge }
+            ];
+
+            for (const step of initSteps) {
+                try {
+                    if (typeof step.fn === 'function') await step.fn();
+                } catch (e) {
+                    console.error(`Ошибка инициализации (${step.name}):`, e);
+                }
+            }
+
+            if (window.location.hash) {
+                const targetId = window.location.hash.replace('#', '');
+                const targetBtn = document.querySelector(`.t-nav-btn[onclick*="switchTab('${targetId}')"]`);
+                if (targetBtn) {
+                    window.switchTab(targetId, targetBtn);
+                }
+            }
+        });
+
+        let leafletMap = null;
+
+        async function initOverviewTab() {
+            let orders = [];
+            try {
+                const res = await fetch('/api/orders?token=' + getToken());
+                if (res.ok) orders = await res.json();
+            } catch (e) {
+                console.error("Failed to fetch orders for overview", e);
+                orders = await getOrders(); 
+            }
+
+            document.getElementById('ov-total-orders').textContent = orders.length;
+            document.getElementById('ov-active-orders').textContent = orders.filter(o => o.status === 'new' || o.status === 'processing').length;
+            document.getElementById('ov-done-orders').textContent = orders.filter(o => o.status === 'done').length;
+            document.getElementById('ov-favorites').textContent = getFavs().length;
+
+            const recent = orders.slice(0, 5);
+            const recentEl = document.getElementById('ov-recent-orders');
+            if (!recentEl) return;
+            if (recent.length === 0) {
+                recentEl.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">Заказов пока нет</p>';
+            } else {
+                recentEl.innerHTML = recent.map(o => {
+                    const st = STATUS_MAP[o.status] || STATUS_MAP['new'];
+                    const date = o.created_at || o.date;
+                    return `<div class="log-entry">
+                        <span class="l-time">${formatDateShort(date)}</span>
+                        <p class="l-msg">${o.productName || o.product_name} — ${o.volume} т <span class="order-status-inline ${st.cls}">${st.label}</span></p>
+                    </div>`;
+                }).join('');
+            }
+
+            let notifs = [];
+            try {
+                const res = await fetch('/api/notifications?token=' + getToken());
+                if (res.ok) notifs = await res.json();
+            } catch (e) {
+                console.error("Failed to fetch notifications for overview", e);
+                notifs = getNotifs();
+            }
+
+            const notifsEl = document.getElementById('ov-recent-notifs');
+            if (!notifsEl) return;
+            
+            saveNotifs(notifs);
+            updateNotifBadge();
+
+            const recentNotifs = Array.isArray(notifs) ? notifs.slice(0, 5) : [];
+            if (recentNotifs.length === 0) {
+                notifsEl.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">Нет уведомлений</p>';
+            } else {
+                notifsEl.innerHTML = recentNotifs.map(n => `
+                    <div class="log-entry ${n.read ? '' : 'unread'}">
+                        <span class="l-time">${formatDateShort(n.time || n.created_at)}</span>
+                        <p class="l-msg">${n.text}</p>
+                    </div>
+                `).join('');
+            }
+        }
+
+        let currentFilter = 'all';
+
+        function initOrdersTab() {
+            renderOrders();
+
+            const btn = document.querySelector('.t-nav-btn[onclick*="switchTab(\'orders\'"]');
+            if (btn) btn.addEventListener('click', renderOrders);
+
+            document.querySelectorAll('.of-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.of-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    renderOrders();
+                });
+            });
+        }
+
+        async function renderOrders() {
+            const orders = await getOrders(); 
+            if (!Array.isArray(orders)) {
+                document.getElementById('orders-empty').style.display = 'block';
+                return;
+            }
+            const filtered = currentFilter === 'all' ? orders : orders.filter(o => o.status === currentFilter);
+
+            document.getElementById('os-new').textContent = orders.filter(o => o.status === 'new').length;
+            document.getElementById('os-processing').textContent = orders.filter(o => o.status === 'processing').length;
+            document.getElementById('os-done').textContent = orders.filter(o => o.status === 'done').length;
+            document.getElementById('os-cancelled').textContent = orders.filter(o => o.status === 'cancelled').length;
+
+            const tbody = document.getElementById('orders-tbody');
+            const emptyEl = document.getElementById('orders-empty');
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '';
+                emptyEl.style.display = 'block';
+                return;
+            }
+
+            emptyEl.style.display = 'none';
+            tbody.innerHTML = filtered.map(o => {
+                const st = STATUS_MAP[o.status] || STATUS_MAP['new'];
+                const canCancel = o.status === 'new' || o.status === 'pending';
+                const date = o.created_at || o.date;
+                const servicesLabel = (o.services || []).map(s => s === 'lab' ? 'Лаб' : 'Лог').join(', ') || '—';
+                const attachmentLink = o.attachment_url ? `📎` : '—';
+                const id = o.id || 'SRV-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+                const hasTracking = o.tracking_data && o.tracking_data.current && o.tracking_data.from && o.tracking_data.to;
+
+                return `<tr>
+                    <td><small>${id}</small></td>
+                    <td>${formatDateShort(date)}</td>
+                    <td style="font-weight: 700;">${o.productName || o.product_name}</td>
+                    <td>${o.volume} т</td>
+                    <td style="font-size: 0.75rem; color: var(--primary);">${servicesLabel}</td>
+                    <td>${attachmentLink}</td>
+                    <td><span class="order-status ${st.cls}">${st.label}</span></td>
+                    <td>
+                        ${canCancel
+                            ? `<button class="cancel-order-btn" data-id="${id}">ОТМЕНИТЬ</button>`
+                            : '<span style="color: var(--text-muted); font-size: 0.7rem;">—</span>'
+                        }
+                    </td>
+                </tr>`;
+            }).join('');
+
+            tbody.querySelectorAll('.cancel-order-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const orderId = btn.dataset.id;
+                    if (!confirm(`Отменить заказ ${orderId}?`)) return;
+                    cancelOrder(orderId);
+                });
+            });
+        }
+
+        async function cancelOrder(orderId) {
+            const token = getToken();
+            if (!token) return logout();
+
+            try {
+                const res = await fetch(`/api/orders/${orderId}`, {
+                    method: 'PATCH',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: 'cancelled' })
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    alert(`Ошибка отмены заказа: ${errorData.message || res.statusText}`);
+                    console.error('API Cancel error:', errorData);
+                    return;
+                }
+
+                addNotif(`Заказ ${orderId} отменён`);
+                addHistory(`Заказ ${orderId} отменён`); 
+                renderOrders();
+                initOverviewTab();
+                updateNotifBadge();
+            } catch (e) {
+                console.error("Failed to cancel order via API", e);
+                alert("Не удалось отменить заказ. Попробуйте позже.");
+            }
+        }
+        async function initServiceRequestsTab() {
+            const tbody = document.getElementById('service-requests-tbody');
+            const emptyEl = document.getElementById('sr-empty');
+            if (!tbody) return;
+
+            try {
+                const res = await fetch('/api/service-requests?token=' + getToken());
+                const requests = await res.json();
+
+                if (!Array.isArray(requests) || requests.length === 0) {
+                    tbody.innerHTML = '';
+                    emptyEl.style.display = 'block';
+                    return;
+                }
+
+                emptyEl.style.display = 'none';
+                tbody.innerHTML = requests.map((r, idx) => {
+                    const st = STATUS_MAP[r.status] || STATUS_MAP['new'];
+                    const optionsLabel = (r.options || []).map(o => o === 'onsite' ? 'Выезд' : 'Удаленно').join(', ') || '—';
+                    const timelineLabel = r.timeline === 'urgent' ? 'Срочно' : (r.timeline === 'week' ? 'Неделя' : 'Планово');
+                    const date = r.created_at || r.date;
+
+                    return `<tr>
+                        <td>${formatDateShort(date)}</td>
+                        <td style="color: var(--primary); font-weight: 700;">${r.service_name}</td>
+                        <td>${r.volume}</td>
+                        <td>${timelineLabel}</td>
+                        <td style="font-size: 0.75rem;">${optionsLabel}</td>
+                        <td><span class="order-status ${st.cls}">${st.label}</span></td>
+                        <td>
+                            <button class="cancel-order-btn" onclick="viewServiceRequestDetails(${idx}, ${JSON.stringify(requests).replace(/"/g, '&quot;')})">СМОТРЕТЬ</button>
+                        </td>
+                    </tr>`;
+                }).join('');
+            } catch (e) {
+                console.error("Error loading service requests:", e);
+            }
+        }
+
+        window.viewServiceRequestDetails = function(idx, requests) {
+            const r = requests[idx];
+            const opts = (r.options || []).map(o => o === 'onsite' ? 'Выезд специалиста' : 'Удаленный мониторинг').join(', ') || 'Нет';
+            const time = r.timeline === 'urgent' ? 'Срочно' : (r.timeline === 'week' ? 'Неделя' : 'Планово');
+            
+            alert(`ДЕТАЛИ ЗАЯВКИ:\n\nУслуга: ${r.service_name}\nОбъем: ${r.volume}\nСроки: ${time}\nОпции: ${opts}\nСтатус: ${r.status}\nДата: ${formatDate(r.created_at || r.date)}`);
+        }
+
+        async function initNotificationsTab() {
+            let notifs = [];
+            try {
+                const res = await fetch('/api/notifications?token=' + getToken());
+                if (res.ok) {
+                    notifs = await res.json();
+                    saveNotifs(notifs);
+                    updateNotifBadge();
+                }
+            } catch (e) {
+                console.error("Failed to fetch notifications", e);
+                notifs = getNotifs();
+            }
+
+            const el = document.getElementById('notif-list');
+            if (!el) return;
+
+            if (notifs.length === 0) {
+                el.innerHTML = '<div class="empty-state-centered"><p>Нет уведомлений</p></div>';
+                return;
+            }
+
+            el.innerHTML = notifs.map((n, i) => `
+                <div class="notif-item ${n.read ? 'read' : 'unread'}">
+                    <div class="notif-dot ${n.read ? '' : 'active'}"></div>
+                    <div class="notif-content">
+                        <p>${n.text}</p>
+                        <span class="notif-time">${formatDate(n.time || n.created_at)}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('mark-all-read').onclick = async () => {
+                const token = getToken();
+                try {
+                    await fetch('/api/notifications/read-all', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    const n = getNotifs();
+                    n.forEach(x => x.read = true);
+                    saveNotifs(n);
+                    updateNotifBadge();
+                    initNotificationsTab();
+                    initOverviewTab();
+                } catch (e) {
+                    console.error("Failed to mark all as read", e);
+                }
+            };
+        }
+
+        function initFavoritesTab() {
+            const favs = getFavs();
+            const grid = document.getElementById('fav-grid');
+            const emptyEl = document.getElementById('fav-empty');
+
+            if (favs.length === 0) {
+                grid.innerHTML = '';
+                grid.appendChild(emptyEl);
+                emptyEl.style.display = 'block';
+                return;
+            }
+
+            emptyEl.style.display = 'none';
+            grid.innerHTML = favs.map(f => `
+                <div class="fav-card">
+                    <div class="fav-img"><img src="${f.img || ''}" alt="${f.name}"></div>
+                    <div class="fav-info">
+                        <h4>${f.name}</h4>
+                        <span>${f.cat || ''}</span>
+                        <span>${f.stock || 'По запросу'}</span>
+                    </div>
+                    <div class="fav-actions">
+                        <button class="cta-button-sm fav-order-btn" data-id="${f.id}">Заказать</button>
+                        <button class="remove-fav-btn" data-id="${f.id}" title="Удалить">✕</button>
+                    </div>
+                </div>
+            `).join('');
+            grid.querySelectorAll('.fav-order-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                   window.location.href = 'product_info.html?id=' + btn.dataset.id;
+                });
+            });
+
+            grid.querySelectorAll('.remove-fav-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    const favs = getFavs().filter(f => String(f.id) !== String(id));
+                    saveFavs(favs);
+                    addHistory('Товар удалён из избранного');
+                    initFavoritesTab();
+                    initOverviewTab();
+                });
+            });
+        }
+        async function initHistoryTab() {
+            let history = [];
+            try {
+                const res = await fetch('/api/history?token=' + getToken());
+                if (res.ok) history = await res.json();
+            } catch (e) {
+                console.error("Failed to fetch history", e);
+                history = getHistory();
+            }
+
+            const el = document.getElementById('history-list');
+            if (!el) return;
+
+            if (history.length === 0) {
+                el.innerHTML = '<div class="empty-state-centered"><p>История действий пуста</p></div>';
+                return;
+            }
+
+            el.innerHTML = history.map(h => `
+                <div class="history-item">
+                    <span class="h-time">${formatDate(h.time)}</span>
+                    <p class="h-action">${h.action}</p>
+                </div>
+            `).join('');
+        }
+        function populateViewFields(nm, email) {
+            document.getElementById('view-name').textContent = nm.name || '—';
+            document.getElementById('view-surname').textContent = nm.surname || '—';
+            document.getElementById('view-email').textContent = email || '—';
+            document.getElementById('view-org').textContent = nm.organization || '—';
+            document.getElementById('view-position').textContent = nm.position || '—';
+            document.getElementById('view-phone').textContent = nm.phone || '—';
+            document.getElementById('view-region').textContent = nm.region || '—';
+            document.getElementById('view-inn').textContent = nm.inn || '—';
+        }
+
+        function toggleEditMode(show) {
+            document.getElementById('settings-view').style.display = show ? 'none' : 'block';
+            document.getElementById('settings-edit').style.display = show ? 'flex' : 'none';
+            const btn = document.getElementById('toggle-edit-btn');
+            btn.textContent = show ? 'ОТМЕНА' : 'ИЗМЕНИТЬ';
+        }
+
+        function initSettingsTab(user, meta) {
+            const normalizedMeta = normalizeUserMeta(meta || {});
+
+            populateViewFields(normalizedMeta, user.email);
+
+            document.getElementById('set-email').value = user.email || '';
+            document.getElementById('set-name').value = normalizedMeta.name || '';
+            document.getElementById('set-surname').value = normalizedMeta.surname || '';
+            document.getElementById('set-org').value = normalizedMeta.organization || '';
+            document.getElementById('set-position').value = normalizedMeta.position || '';
+            document.getElementById('set-phone').value = normalizedMeta.phone || '';
+            document.getElementById('set-region').value = normalizedMeta.region || '';
+            document.getElementById('set-inn').value = normalizedMeta.inn || '';
+
+            document.getElementById('toggle-edit-btn').addEventListener('click', () => {
+                const isEditing = document.getElementById('settings-edit').style.display !== 'none';
+                toggleEditMode(!isEditing);
+            });
+            const cancelBtn = document.getElementById('cancel-edit-btn');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', () => toggleEditMode(false));
+            }
+
+            document.getElementById('save-profile-btn').addEventListener('click', async () => {
+                const token = getToken();
+                if (!token) return logout();
+
+                const body = {
+                    data: {
+                        name: document.getElementById('set-name').value.trim(),
+                        surname: document.getElementById('set-surname').value.trim(),
+                        organization: document.getElementById('set-org').value.trim(),
+                        position: document.getElementById('set-position').value.trim(),
+                        phone: document.getElementById('set-phone').value.trim(),
+                        region: document.getElementById('set-region').value.trim(),
+                        inn: document.getElementById('set-inn').value.trim()
+                    }
+                };
+
+                const statusEl = document.getElementById('save-status');
+                statusEl.textContent = 'Сохранение...';
+                statusEl.className = 'save-status';
+
+                try {
+                    const res = await fetch('/api/auth/update-user', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ access_token: token, ...body })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.message || 'Ошибка сохранения');
+
+                    const existingUser = getUser();
+                    const updatedUser = data?.user || {
+                        ...existingUser,
+                        user_metadata: { ...existingUser.user_metadata, ...body.data }
+                    };
+                    localStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
+
+                    statusEl.textContent = '✓ Изменения сохранены';
+                    statusEl.className = 'save-status success';
+
+                    addHistory('Профиль обновлён');
+                    syncUserToUI(updatedUser);
+                    populateViewFields(normalizeUserMeta(updatedUser.user_metadata || {}), updatedUser.email);
+                    setTimeout(() => toggleEditMode(false), 1000);
+                } catch (e) {
+                    statusEl.textContent = '✗ ' + e.message;
+                    statusEl.className = 'save-status error';
+                }
+            });
+
+            let currentResetToken = '';
+            window.showSecurityStep = function(n) {
+                document.getElementById('security-step-1').style.display = n === 1 ? 'block' : 'none';
+                document.getElementById('security-step-2').style.display = n === 2 ? 'block' : 'none';
+                document.getElementById('security-step-3').style.display = n === 3 ? 'block' : 'none';
+                if (n === 1) {
+                    document.getElementById('pass-status').textContent = '';
+                    currentResetToken = '';
+                }
+            };
+
+            document.getElementById('request-reset-btn').addEventListener('click', async () => {
+                const statusEl = document.getElementById('pass-status');
+                const btn = document.getElementById('request-reset-btn');
+                statusEl.textContent = '';
+                statusEl.className = 'save-status';
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch('/api/auth/request-password-reset', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ access_token: getToken() })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.message || 'Ошибка отправки');
+
+                    showSecurityStep(2);
+                } catch (e) {
+                    statusEl.textContent = '✗ ' + e.message;
+                    statusEl.className = 'save-status error';
+                } finally {
+                    btn.disabled = false;
+                }
+            });
+
+
+            document.getElementById('verify-reset-code-btn').addEventListener('click', async () => {
+                const token = document.getElementById('reset-code-input').value.trim();
+                const statusEl = document.getElementById('pass-status');
+                const btn = document.getElementById('verify-reset-code-btn');
+
+                if (!token || token.length !== 6) {
+                    statusEl.textContent = 'Введите 6-значный код';
+                    statusEl.className = 'save-status error';
+                    return;
+                }
+
+                statusEl.textContent = 'Проверка...';
+                statusEl.className = 'save-status';
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch('/api/auth/verify-reset-code', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ access_token: getToken(), token })
+                    });
+                    if (!res.ok) {
+                        const data = await res.json();
+                        throw new Error(data.message || 'Неверный код');
+                    }
+
+                    currentResetToken = token;
+                    statusEl.textContent = '✓ Код подтвержден';
+                    statusEl.className = 'save-status success';
+                    setTimeout(() => showSecurityStep(3), 1000);
+                } catch (e) {
+                    statusEl.textContent = '✗ ' + e.message;
+                    statusEl.className = 'save-status error';
+                } finally {
+                    btn.disabled = false;
+                }
+            });
+
+            document.getElementById('final-reset-btn').addEventListener('click', async () => {
+                const pass = document.getElementById('reset-new-pass').value;
+                const confirm = document.getElementById('reset-confirm-pass').value;
+                const statusEl = document.getElementById('pass-status');
+                const btn = document.getElementById('final-reset-btn');
+
+                if (pass.length < 6) {
+                    statusEl.textContent = 'Минимум 6 символов';
+                    statusEl.className = 'save-status error';
+                    return;
+                }
+                if (pass !== confirm) {
+                    statusEl.textContent = 'Пароли не совпадают';
+                    statusEl.className = 'save-status error';
+                    return;
+                }
+
+                statusEl.textContent = 'Обновление...';
+                statusEl.className = 'save-status';
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch('/api/auth/confirm-password-reset', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            access_token: getToken(), 
+                            token: currentResetToken, 
+                            password: pass 
+                        })
+                    });
+                    if (!res.ok) {
+                        const data = await res.json();
+                        throw new Error(data.message || 'Ошибка');
+                    }
+
+                    statusEl.textContent = '✓ Пароль изменен';
+                    statusEl.className = 'save-status success';
+                    addHistory('Пароль успешно изменен');
+                    setTimeout(() => showSecurityStep(1), 2000);
+                    
+                    document.getElementById('reset-new-pass').value = '';
+                    document.getElementById('reset-confirm-pass').value = '';
+                    document.getElementById('reset-code-input').value = '';
+                } catch (e) {
+                    statusEl.textContent = '✗ ' + e.message;
+                    statusEl.className = 'save-status error';
+                } finally {
+                    btn.disabled = false;
+                }
+            });
+
+
+        }
+
+        window.switchTab = function(id, btn) {
+            document.querySelectorAll('.t-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.t-nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + id).classList.add('active');
+            if (btn) btn.classList.add('active');
+
+            if (id === 'service-requests') initServiceRequestsTab();
+            if (id === 'notifications') initNotificationsTab();
+
+            setTimeout(() => {
+                const tab = document.getElementById('tab-' + id);
+                tab.querySelectorAll('.reveal').forEach(el => {
+                    el.classList.remove('active');
+                    void el.offsetWidth;
+                    el.classList.add('active');
+                });
+            }, 50);
+        };
+    })();
+    </script>
+</body>
+</html>

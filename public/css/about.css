@@ -1,0 +1,315 @@
+.hero-simple { 
+    padding-top: 160px !important; 
+    padding-bottom: 10px !important;
+    margin-bottom: 0px !important;
+}
+
+.hero-simple h1 {
+    line-height: 0.9 !important;
+    margin: 0;
+}
+
+.hero-simple h1 span {
+    display: block;
+    margin-top: 0 !important;
+}
+
+.slider-section { padding: 20px 0; overflow: hidden; width: 100%; }
+.slider-container { 
+    display: flex; 
+    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    padding-left: 6%;
+}
+.slide {
+    min-width: 70vw; height: 500px; margin-right: 50px;
+    position: relative; border-radius: 4px; overflow: hidden;
+    filter: grayscale(1) brightness(0.5); transition: 0.8s;
+}
+.slide.active { filter: grayscale(0) brightness(1); transform: scale(1.02); }
+.slide img { width: 100%; height: 100%; object-fit: cover; }
+.slide-content { position: absolute; bottom: 50px; left: 50px; z-index: 5; }
+.slide-content h3 { font-size: 2.5rem; font-family: 'Geologica'; }
+
+.slider-controls { display: flex; gap: 20px; padding: 30px 6%; }
+.control-btn {
+    width: 60px; height: 60px; border: 1px solid var(--border);
+    background: none; color: var(--text); cursor: pointer; font-size: 1.5rem; transition: 0.3s;
+}
+.control-btn:hover { background: var(--primary); color: #000; border-color: var(--primary); }
+
+.philosophy-grid { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; background: var(--surface); }
+.ph-text { padding: 10% 12%; display: flex; flex-direction: column; justify-content: center; }
+.ph-image { 
+    background: url('https://avatars.mds.yandex.net/get-mpic/7726747/img_id8080178262457030028.jpeg/orig') center/cover;
+    height: 100vh; position: sticky; top: 0;
+}
+.quote-text { font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.2; font-family: 'Geologica'; position: relative; }
+.quote-text::before { content: "«"; color: var(--primary); font-size: 6rem; position: absolute; left: -60px; top: -30px; opacity: 0.4; }
+
+
+.timeline-vertical { padding: 120px 6%; }
+.timeline-item { display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 120px; gap: 60px; align-items: start; }
+.tm-year { 
+    font-family: 'Geologica'; font-size: clamp(4rem, 12vw, 10rem); 
+    font-weight: 900; 
+    color: var(--primary); 
+    opacity: 0.7;
+    line-height: 1;
+    -webkit-text-stroke: none;
+}
+.tm-info { padding-top: 40px; border-top: 3px solid var(--primary); }
+.tm-info h3 { margin-bottom: 20px; font-size: 1.8rem; }
+.tm-info p { color: var(--text-muted); font-size: 1.1rem; line-height: 1.8; }
+
+/* New Sections */
+.section-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-family: 'Geologica';
+    margin-bottom: 40px;
+}
+
+/* «Путь зерна» — вертикальная дорожка с шагами */
+.ab-journey {
+    padding: 100px 6%;
+    background: var(--surface);
+}
+
+.ab-journey-lead {
+    max-width: 42rem;
+    font-size: 1.15rem;
+    line-height: 1.7;
+    color: var(--text-muted);
+    margin: -20px 0 48px 0;
+}
+
+.ab-journey-track {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    border-left: 2px solid var(--border);
+    margin-left: 14px;
+}
+
+.ab-journey-step {
+    position: relative;
+    padding: 0 0 40px 36px;
+}
+
+.ab-journey-step:last-child {
+    padding-bottom: 0;
+}
+
+.ab-journey-dot {
+    position: absolute;
+    left: -15px;
+    top: 6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 0 0 4px var(--surface);
+}
+
+.ab-journey-num {
+    display: block;
+    font-family: 'Geologica';
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--primary);
+    margin-bottom: 8px;
+}
+
+.ab-journey-body h3 {
+    font-size: 1.35rem;
+    margin: 0 0 10px 0;
+}
+
+.ab-journey-body p {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.65;
+    max-width: 40rem;
+}
+
+/* FAQ */
+.ab-faq {
+    padding: 100px 6%;
+}
+
+.ab-faq-list {
+    max-width: 48rem;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ab-faq-item {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    padding: 0;
+    transition: border-color 0.3s;
+}
+
+.ab-faq-item[open] {
+    border-color: var(--primary);
+}
+
+.ab-faq-item summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 20px 24px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    position: relative;
+    padding-right: 48px;
+}
+
+.ab-faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.ab-faq-item summary::after {
+    content: "+";
+    position: absolute;
+    right: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.4rem;
+    color: var(--primary);
+    font-weight: 300;
+    transition: transform 0.25s;
+}
+
+.ab-faq-item[open] summary::after {
+    content: "–";
+}
+
+.ab-faq-item p {
+    margin: 0;
+    padding: 0 24px 22px 24px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+}
+
+.ab-faq-item[open] p {
+    border-top-color: transparent;
+}
+
+/* CTA-полоса */
+.ab-cta {
+    padding: 0 6% 100px;
+}
+
+.ab-cta-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    padding: 56px 48px;
+    border: 1px solid var(--border);
+    background: linear-gradient(135deg, rgba(175, 255, 0, 0.08) 0%, var(--surface) 55%);
+    border-radius: 4px;
+}
+
+.ab-cta-title {
+    font-family: 'Geologica';
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    margin: 0 0 16px 0;
+    line-height: 1.1;
+}
+
+.ab-cta-copy p {
+    margin: 0;
+    max-width: 28rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+    font-size: 1.05rem;
+}
+
+.ab-cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.ab-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 28px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: 0.25s;
+    font-size: 0.95rem;
+}
+
+.ab-cta-btn--primary {
+    background: var(--primary);
+    color: #000;
+    border: 1px solid var(--primary);
+}
+
+.ab-cta-btn--primary:hover {
+    filter: brightness(1.08);
+}
+
+.ab-cta-btn--ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.ab-cta-btn--ghost:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+@media (max-width: 968px) {
+    .ab-cta-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 40px 28px;
+    }
+}
+
+body.light-theme .tm-year {
+    color: var(--primary);
+    opacity: 0.8;
+}
+
+body.light-theme .ab-cta-inner {
+    background: linear-gradient(135deg, rgba(43, 93, 0, 0.1) 0%, var(--surface) 55%);
+}
+
+@media (max-width: 968px) {
+    .philosophy-grid { grid-template-columns: 1fr; }
+    .ph-image { height: 400px; position: relative; order: -1; }
+    .timeline-item { grid-template-columns: 1fr; gap: 20px; }
+    .tm-year { font-size: 6rem; }
+    .about-hero-title { padding-top: 150px !important; }
+    .quote-text::before { left: -30px; font-size: 4rem; }
+}
+
+@media (max-width: 600px) {
+    .slide { min-width: 85vw; height: 300px; margin-right: 20px; }
+    .slide-content { bottom: 20px; left: 20px; }
+    .slide-content h3 { font-size: 1.5rem; }
+    .control-btn { width: 50px; height: 50px; font-size: 1.2rem; }
+    .about-hero-title { padding-top: 120px !important; }
+    .about-hero-title h1 { font-size: clamp(2rem, 8vw, 3.5rem); }
+    .timeline-vertical { padding: 60px 4%; }
+    .timeline-item { margin-bottom: 60px; }
+    .tm-year { font-size: 4rem; }
+    .tm-info h3 { font-size: 1.3rem; }
+    .tm-info p { font-size: 0.95rem; }
+    .ph-text { padding: 8% 6%; }
+    .quote-text { font-size: 1.5rem; }
+    .quote-text::before { display: none; }
+}

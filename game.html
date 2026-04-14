@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Kuroko Basketball: The Zone</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Orbitron', sans-serif; }
+        #ui {
+            position: absolute; top: 20px; left: 20px; color: #fff;
+            background: rgba(0,0,0,0.7); padding: 20px; border: 2px solid #00f2ff;
+            border-radius: 10px; pointer-events: none;
+        }
+        .ability { color: #00f2ff; font-weight: bold; }
+        #fx-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; transition: background 0.1s;
+        }
+        #ability-msg {
+            position: absolute; top: 40%; width: 100%; text-align: center;
+            color: #fff; font-size: 50px; font-weight: bold; font-style: italic;
+            text-shadow: 0 0 20px #00f2ff; display: none;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="fx-overlay"></div>
+<div id="ui">
+    <b style="font-size: 1.5em; color: #ff0055;">KUROKO: GENERATION OF MIRACLES</b><br><br>
+    WASD — Движение | SPACE — <span class="ability">METEOR JAM (DUNK)</span><br>
+    [Q] — <span class="ability">VANISHING DRIVE</span><br>
+    [E] — <span class="ability">ENTER THE ZONE</span>
+</div>
+<div id="ability-msg">VANISHING DRIVE!</div>
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+            "gsap": "https://cdn.skypack.dev/gsap"
+        }
+    }
+</script>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import gsap from 'gsap';
+
+    let scene, camera, renderer, clock, player, ball, mixer;
+    let opponents = [];
+    let isLocked = false;
+    let moveKeys = { w: false, a: false, s: false, d: false };
+    const HOOP_POS = new THREE.Vector3(0, 4.5, -20);
+
+    init();
+
+    async function init() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x020205);
+        scene.fog = new THREE.Fog(0x020205, 15, 45);
+
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        clock = new THREE.Clock();
+
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        document.body.appendChild(renderer.domElement);
+
+        // Свет в стиле киберпанк-баскетбола
+        const ambient = new THREE.AmbientLight(0xffffff, 0.3);
+        scene.add(ambient);
+        
+        const spot1 = new THREE.SpotLight(0x00f2ff, 1000, 50, 0.5, 1);
+        spot1.position.set(10, 20, 10);
+        spot1.castShadow = true;
+        scene.add(spot1);
+
+        const spot2 = new THREE.SpotLight(0xff0055, 1000, 50, 0.5, 1);
+        spot2.position.set(-10, 20, -10);
+        scene.add(spot2);
+
+        // Поле и объекты
+        createPremiumCourt();
+        createHoop();
+
+        // Загрузка качественной модели человечка
+        const loader = new GLTFLoader();
+        // Используем стандартную модель из Three.js (человекоподобный робот, но с ригом)
+        loader.load('https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb', (gltf) => {
+            player = gltf.scene;
+            player.scale.set(0.4, 0.4, 0.4);
+            player.traverse(n => { if(n.isMesh) { n.castShadow = true; n.material.emissive = new THREE.Color(0x0033ff); n.material.emissiveIntensity = 0.5; } });
+            scene.add(player);
+            player.position.set(0, 0, 10);
+
+            // Противники (красные)
+            for(let i=0; i<2; i++) {
+                let opp = gltf.scene.clone();
+                opp.position.set(i === 0 ? -5 : 5, 0, -5);
+                opp.traverse(n => { if(n.isMesh) n.material = new THREE.MeshStandardMaterial({color: 0xff0033}); });
+                opponents.push(opp);
+                scene.add(opp);
+            }
+        });
+
+        // Мяч с эффектом свечения
+        const ballGeo = new THREE.SphereGeometry(0.3, 32, 32);
+        const ballMat = new THREE.MeshStandardMaterial({ color: 0xffaa00, emissive: 0xff4400, emissiveIntensity: 1 });
+        ball = new THREE.Mesh(ballGeo, ballMat);
+        scene.add(ball);
+
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+        animate();
+    }
+
+    function createPremiumCourt() {
+        const courtGeo = new THREE.PlaneGeometry(30, 50);
+        const courtMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.1, metalness: 0.5 });
+        const court = new THREE.Mesh(courtGeo, courtMat);
+        court.rotation.x = -Math.PI / 2;
+        court.receiveShadow = true;
+        scene.add(court);
+
+        const grid = new THREE.GridHelper(50, 25, 0x00f2ff, 0x222222);
+        grid.rotation.x = Math.PI/2;
+        court.add(grid);
+    }
+
+    function createHoop() {
+        const hoopGroup = new THREE.Group();
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 8), new THREE.MeshStandardMaterial({color: 0x444444}));
+        pole.position.set(0, 4, -24);
+        const board = new THREE.Mesh(new THREE.BoxGeometry(6, 4, 0.3), new THREE.MeshStandardMaterial({color: 0x111111, transparent: true, opacity: 0.6}));
+        board.position.set(0, 6, -23.5);
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.8, 0.1, 16, 100), new THREE.MeshStandardMaterial({color: 0xff0055, emissive: 0xff0055, emissiveIntensity: 2}));
+        ring.rotation.x = Math.PI/2;
+        ring.position.set(0, 4.5, -22);
+        hoopGroup.add(pole, board, ring);
+        scene.add(hoopGroup);
+    }
+
+    function handleKeyDown(e) {
+        if (isLocked) return;
+        if (e.code === 'KeyW') moveKeys.w = true;
+        if (e.code === 'KeyS') moveKeys.s = true;
+        if (e.code === 'KeyA') moveKeys.a = true;
+        if (e.code === 'KeyD') moveKeys.d = true;
+        if (e.code === 'Space') tryDunk();
+        if (e.code === 'KeyQ') useVanishingDrive();
+        if (e.code === 'KeyE') enterZone();
+    }
+
+    function handleKeyUp(e) {
+        if (e.code === 'KeyW') moveKeys.w = false;
+        if (e.code === 'KeyS') moveKeys.s = false;
+        if (e.code === 'KeyA') moveKeys.a = false;
+        if (e.code === 'KeyD') moveKeys.d = false;
+    }
+
+    // --- СПОСОБНОСТИ ---
+
+    function useVanishingDrive() {
+        showMsg("VANISHING DRIVE!");
+        isLocked = true;
+        player.traverse(n => { if(n.isMesh) n.material.transparent = true; n.material.opacity = 0.2; });
+        
+        gsap.to(player.position, {
+            z: player.position.z - 8,
+            duration: 0.4,
+            ease: "power2.inOut",
+            onComplete: () => {
+                player.traverse(n => { if(n.isMesh) n.material.opacity = 1; });
+                isLocked = false;
+            }
+        });
+    }
+
+    function enterZone() {
+        showMsg("THE ZONE");
+        document.getElementById('fx-overlay').style.background = 'radial-gradient(circle, transparent 20%, rgba(0,242,255,0.2) 100%)';
+        setTimeout(() => document.getElementById('fx-overlay').style.background = 'none', 3000);
+    }
+
+    function tryDunk() {
+        const dist = player.position.distanceTo(new THREE.Vector3(0, 0, -20));
+        if (dist < 10) performMeteorJam();
+    }
+
+    function performMeteorJam() {
+        isLocked = true;
+        const tl = gsap.timeline({ onComplete: () => isLocked = false });
+
+        showMsg("METEOR JAM!!");
+
+        // 1. Взлет
+        tl.to(player.position, { y: 6, z: "-=5", duration: 0.8, ease: "power2.out" });
+        tl.to(player.rotation, { x: Math.PI * 2, duration: 0.8, ease: "none" }, 0);
+        
+        // Камера на данк
+        tl.to(camera.position, { x: 10, y: 5, z: -15, duration: 0.4 }, 0.2);
+
+        // 2. Зависание и удар
+        tl.to(player.position, { y: 4.5, z: -21, duration: 0.3, ease: "expo.in" });
+        
+        // 3. Эффект удара
+        tl.add(() => {
+            document.getElementById('fx-overlay').style.background = 'rgba(255,255,255,0.8)';
+            camera.position.x += (Math.random()-0.5)*2; // Тряска
+        }, "-=0.1");
+
+        tl.to(document.getElementById('fx-overlay'), { background: 'transparent', duration: 0.2 });
+        
+        // 4. Приземление
+        tl.to(player.position, { y: 0, duration: 0.4, ease: "bounce.out" });
+        tl.to(player.rotation, { x: 0, duration: 0.1 });
+    }
+
+    function showMsg(txt) {
+        const el = document.getElementById('ability-msg');
+        el.innerText = txt;
+        el.style.display = 'block';
+        setTimeout(() => el.style.display = 'none', 1000);
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        const delta = clock.getDelta();
+
+        if (player && !isLocked) {
+            const speed = 15 * delta;
+            if (moveKeys.w) player.position.z -= speed;
+            if (moveKeys.s) player.position.z += speed;
+            if (moveKeys.a) player.position.x -= speed;
+            if (moveKeys.d) player.position.x += speed;
+
+            // Направление взгляда
+            if (moveKeys.w || moveKeys.s || moveKeys.a || moveKeys.d) {
+                player.rotation.y = Math.atan2(moveKeys.a ? -1 : moveKeys.d ? 1 : 0, moveKeys.w ? -1 : moveKeys.s ? 1 : 0);
+            }
+
+            // Мяч (дриблинг)
+            ball.position.copy(player.position);
+            ball.position.y = 1.2 + Math.abs(Math.sin(Date.now() * 0.01)) * 0.5;
+            ball.position.z -= 1.2;
+
+            // Камера плавно следует
+            const targetCam = new THREE.Vector3(player.position.x, 6, player.position.z + 12);
+            camera.position.lerp(targetCam, 0.1);
+            camera.lookAt(player.position);
+            
+            // AI Противников (преследуют)
+            opponents.forEach(opp => {
+                let dir = new THREE.Vector3().subVectors(player.position, opp.position).normalize();
+                opp.position.add(dir.multiplyScalar(5 * delta));
+                opp.lookAt(player.position);
+            });
+        } else if (isLocked && player) {
+            // Мяч в руке при данке
+            ball.position.copy(player.position).add(new THREE.Vector3(0, 0, -0.5));
+        }
+
+        renderer.render(scene, camera);
+    }
+</script>
+</body>
+</html>

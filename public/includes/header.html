@@ -1,0 +1,58 @@
+<header id="header">
+    <a href="index.html" class="logo">
+        <img src="media/logo.svg" alt="Зелёный край">
+    </a>
+    
+    <button class="burger-btn" id="burger-toggle" aria-label="Меню">
+        <span></span><span></span><span></span>
+    </button>
+
+    <nav class="nav-links" id="nav-links">
+        <a href="index.html">Главная</a>
+        <a href="about.html">О компании</a>
+        <a href="products.html">Продукция</a>
+        <a href="services.html">Услуги</a>
+        <a href="gallery.html">Галерея</a>
+        <a href="news.html">Блог</a>
+        <a href="#" id="support-link">Поддержка</a>
+    </nav>
+
+    <div class="header-actions">
+        <button class="theme-btn" id="theme-toggle">◐</button>
+        <a href="cart.html" class="cart-icon-link" aria-label="Корзина">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M6 6h15l-1.5 9h-12z"/>
+                <circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M6 6L5 3H2"/>
+            </svg>
+        </a>
+        <a id="header-login" href="auth.html" class="cta-button auth-action">ВХОД</a>
+        <a id="header-profile" href="profile.html" class="profile-icon-link" aria-label="Профиль">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M20 21v-1a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v1" /><circle cx="12" cy="7" r="4" />
+            </svg>
+        </a>
+    </div>
+</header>
+
+<!-- Разметка Drawer остается, но вынесена за пределы хедера -->
+<div class="drawer-overlay" id="drawer-overlay"></div>
+<div class="nav-drawer" id="nav-drawer">
+    <div class="drawer-header">
+        <div class="logo">МЕНЮ</div>
+        <button class="close-drawer" id="drawer-close">&times;</button>
+    </div>
+    <nav class="drawer-links">
+        <a href="index.html">ГЛАВНАЯ</a>
+        <a href="about.html">О КОМПАНИИ</a>
+        <a href="products.html">ПРОДУКЦИЯ</a>
+        <a href="services.html">УСЛУГИ</a>
+        <a href="gallery.html">ГАЛЕРЕЯ</a>
+        <a href="news.html">БЛОГ</a>
+        <a href="#" id="drawer-support">ПОДДЕРЖКА</a>
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 10px 0;">
+        <a href="auth.html" id="drawer-login" class="auth-action">ВХОД</a>
+        <a href="profile.html" id="drawer-profile">ПРОФИЛЬ</a>
+    </nav>
+    <div class="drawer-footer">
+    </div>
+</div>

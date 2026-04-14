@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Услуги | Зелёный край</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/products.css">
+    <link rel="stylesheet" href="css/services.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="p-page">
+        <header class="p-hero-simple reveal">
+            <div class="p-container">
+                <h1>КОМПЛЕКСНОЕ СОПРОВОЖДЕНИЕ</h1>
+            </div>
+        </header>
+
+        <div class="p-layout p-container">
+            <section class="p-content">
+                <div class="p-grid" id="service-list">
+                </div>
+            </section>
+            <aside class="p-sidebar reveal">
+                <div class="filter-group">
+                    <h3>Направления</h3>
+                    <ul class="filter-list" id="service-category-filter">
+                        <li class="active" data-cat="Все">Все услуги</li>
+                        <li data-cat="Лаборатория">Лаборатория</li>
+                        <li data-cat="Логистика">Логистика</li>
+                        <li data-cat="Агросканирование">Агросканирование</li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="js/main.js"></script>
+    <script>
+        let allServices = [];
+
+        function getServiceCat(s) {
+            const id = String(s.id || '');
+            if (s.cat) return s.cat;
+            if (id === 'lab') return 'Лаборатория';
+            if (id === 'log') return 'Логистика';
+            if (id === 'drones') return 'Агросканирование';
+            return 'Другое';
+        }
+
+        function renderServices(services) {
+            const list = document.getElementById('service-list');
+            if (!services.length) {
+                list.innerHTML = '<p class="no-results">По вашему запросу ничего не найдено.</p>';
+                return;
+            }
+
+            list.innerHTML = services.map(s => {
+                const cat = getServiceCat(s);
+                const imageById = {
+                    lab: '/media/analiz.jpg',
+                    log: '/media/postavka.jpg',
+                    drones: '/media/skan.webp'
+                };
+                const heroImage = imageById[s.id] || '/media/analiz.jpg';
+
+                return `
+                    <article class="p-card reveal service-card">
+                        <a href="service_info.html?id=${encodeURIComponent(s.id)}">
+                            <div class="p-card-img service-hero">
+                                <img class="service-photo" src="${heroImage}" alt="${s.name}">
+                                <div class="p-card-badge">${cat}</div>
+                            </div>
+                            <div class="p-card-body">
+                                <span class="p-card-cat">${cat}</span>
+                                <h3>${s.name}</h3>
+                                <p class="service-desc">${s.desc}</p>
+                            </div>
+                        </a>
+                        <div class="p-card-actions">
+                            <span class="p-card-price" style="font-size: 1.1rem;">По запросу</span>
+                            <button class="action-btn-cart" onclick="handleConsultation(event, '${s.id}', '${s.name.replace(/'/g, "\\'")}')">
+                                Оставить заявку
+                            </button>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            setTimeout(() => {
+                document.querySelectorAll('.service-card.reveal').forEach(el => {
+                    if (typeof observer !== 'undefined') observer.observe(el);
+                });
+            }, 50);
+        }
+
+        function addToCart(id, name, cat, price, img) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existing = cart.find(i => i.id === id);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ id, name, cat, price: parseInt(price, 10), img: img || 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=200', qty: 1 });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            
+            const notification = document.createElement('div');
+            notification.className = 'cart-notification';
+            notification.innerHTML = `<span> Услуга "${name}" добавлена для заказа!</span>`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 10);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        function setupFilters() {
+            document.querySelectorAll('#service-category-filter li').forEach(li => {
+                li.addEventListener('click', () => {
+                    document.querySelector('#service-category-filter li.active').classList.remove('active');
+                    li.classList.add('active');
+                    applyFilters();
+                });
+            });
+        }
+
+        function applyFilters() {
+            const cat = document.querySelector('#service-category-filter li.active').dataset.cat;
+            let filtered = allServices;
+            if (cat !== 'Все') filtered = filtered.filter(s => getServiceCat(s) === cat);
+            renderServices(filtered);
+        }
+
+        async function loadServices() {
+            const res = await fetch('/api/services');
+            allServices = await res.json();
+            renderServices(allServices);
+            setupFilters();
+        }
+
+        document.addEventListener("DOMContentLoaded", loadServices);
+    </script>
+</body>
+</html>

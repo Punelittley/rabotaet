@@ -1,0 +1,200 @@
+[
+  {
+    "sessionId": "s-1775821987316-20z8hl",
+    "userLabel": "Пользователь сайта",
+    "createdAt": "2026-04-10T11:53:12.521Z",
+    "updatedAt": "2026-04-14T18:19:57.826Z",
+    "messages": [
+      {
+        "id": "m-1775821992521-767hm",
+        "from": "user",
+        "text": "asd",
+        "source": "site",
+        "time": "2026-04-10T11:53:12.521Z"
+      },
+      {
+        "id": "m-1775824373828-4bk1t",
+        "from": "user",
+        "text": "asd",
+        "source": "site",
+        "time": "2026-04-10T12:32:53.828Z"
+      },
+      {
+        "id": "m-1775824375821-zrp22",
+        "from": "user",
+        "text": "asd",
+        "source": "site",
+        "time": "2026-04-10T12:32:55.821Z"
+      },
+      {
+        "id": "m-1775824377844-decbe",
+        "from": "user",
+        "text": "q",
+        "source": "site",
+        "time": "2026-04-10T12:32:57.844Z"
+      },
+      {
+        "id": "m-1775824378496-ikhkd",
+        "from": "user",
+        "text": "q",
+        "source": "site",
+        "time": "2026-04-10T12:32:58.496Z"
+      },
+      {
+        "id": "m-1775824442639-alz1g",
+        "from": "user",
+        "text": "asd",
+        "source": "site",
+        "time": "2026-04-10T12:34:02.639Z"
+      },
+      {
+        "id": "m-1775824664234-tb964",
+        "from": "user",
+        "text": "/bind",
+        "source": "site",
+        "time": "2026-04-10T12:37:44.234Z"
+      },
+      {
+        "id": "m-1775824665471-f1elk",
+        "from": "user",
+        "text": "asd",
+        "source": "site",
+        "time": "2026-04-10T12:37:45.471Z"
+      },
+      {
+        "id": "m-1775824666696-5t24i",
+        "from": "user",
+        "text": "/bind asd",
+        "source": "site",
+        "time": "2026-04-10T12:37:46.696Z"
+      },
+      {
+        "id": "m-1775825415961-1kro1",
+        "from": "user",
+        "text": "asd",
+        "source": "site",
+        "time": "2026-04-10T12:50:15.962Z"
+      },
+      {
+        "id": "m-1775825766113-iwap4",
+        "from": "user",
+        "text": "asd",
+        "source": "site",
+        "time": "2026-04-10T12:56:06.113Z"
+      },
+      {
+        "id": "m-1775826055905-fjhv4",
+        "from": "user",
+        "text": "asd",
+        "source": "site",
+        "time": "2026-04-10T13:00:55.905Z"
+      },
+      {
+        "id": "m-1775826067417-2yqu4",
+        "from": "user",
+        "text": "asd",
+        "source": "site",
+        "time": "2026-04-10T13:01:07.418Z"
+      },
+      {
+        "id": "m-1775826067905-h5kcp",
+        "from": "user",
+        "text": "qwe",
+        "source": "site",
+        "time": "2026-04-10T13:01:07.905Z"
+      },
+      {
+        "id": "m-1775826068482-gepxa",
+        "from": "user",
+        "text": "asd",
+        "source": "site",
+        "time": "2026-04-10T13:01:08.482Z"
+      },
+      {
+        "id": "m-1775827498850-6to1b",
+        "from": "user",
+        "text": "asd",
+        "source": "site",
+        "time": "2026-04-10T13:24:58.850Z"
+      },
+      {
+        "id": "m-1775827499486-clu6q",
+        "from": "user",
+        "text": "asd",
+        "source": "site",
+        "time": "2026-04-10T13:24:59.486Z"
+      },
+      {
+        "id": "m-1775827500704-0bzl7",
+        "from": "user",
+        "text": "qwe",
+        "source": "site",
+        "time": "2026-04-10T13:25:00.704Z"
+      },
+      {
+        "id": "m-1775827963110-w1zw6",
+        "from": "support",
+        "text": "дафыв",
+        "source": "vk",
+        "time": "2026-04-10T13:32:43.110Z"
+      },
+      {
+        "id": "m-1775827981088-3kcis",
+        "from": "support",
+        "text": "дафыв",
+        "source": "vk",
+        "time": "2026-04-10T13:33:01.088Z"
+      },
+      {
+        "id": "m-1775827986680-u2nik",
+        "from": "support",
+        "text": "дафыв",
+        "source": "vk",
+        "time": "2026-04-10T13:33:06.680Z"
+      },
+      {
+        "id": "m-1775828329122-x5vk5",
+        "from": "support",
+        "text": "да",
+        "source": "vk",
+        "time": "2026-04-10T13:38:49.122Z"
+      },
+      {
+        "id": "m-1775828343138-2qlfc",
+        "from": "support",
+        "text": "фывфыв",
+        "source": "vk",
+        "time": "2026-04-10T13:39:03.138Z"
+      },
+      {
+        "id": "m-1776190797826-t5ea4",
+        "from": "user",
+        "text": "sadd",
+        "source": "site",
+        "time": "2026-04-14T18:19:57.826Z"
+      }
+    ]
+  },
+  {
+    "sessionId": "s-1776024375144-17itcx",
+    "userLabel": "Пользователь сайта",
+    "createdAt": "2026-04-12T20:08:15.399Z",
+    "updatedAt": "2026-04-12T20:23:38.125Z",
+    "messages": [
+      {
+        "id": "m-1776024495399-cfdnf",
+        "from": "user",
+        "text": "zxc",
+        "source": "site",
+        "time": "2026-04-12T20:08:15.399Z"
+      },
+      {
+        "id": "m-1776025418125-c3sh5",
+        "from": "user",
+        "text": "asd",
+        "source": "site",
+        "time": "2026-04-12T20:23:38.125Z"
+      }
+    ]
+  }
+]

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Паспорт продукции | Зелёный край</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/product_info.css">
+    <link rel="stylesheet" href="css/wizard.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main id="pi-content">
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <div id="cpModal" class="wizard-overlay" style="display: none;">
+        <div class="wizard-card" style="max-width: 500px;">
+            <button class="wizard-close" onclick="closeCPModal()">&times;</button>
+            <p class="p-label">КОММЕРЧЕСКОЕ ПРЕДЛОЖЕНИЕ</p>
+            <h2 style="margin-bottom: 25px;">Запрос КП</h2>
+            <div class="wizard-field">
+                <label>ИМЯ / КОМПАНИЯ</label>
+                <input type="text" id="cpClientName" class="wizard-input" placeholder="Введите ваше имя или название компании">
+            </div>
+            <div class="wizard-field">
+                <label>ОБЪЁМ (ТОНН)</label>
+                <input type="number" id="cpVolume" class="wizard-input" placeholder="Например: 50">
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                <button class="wiz-btn" onclick="handleGenerateCP()">СФОРМИРОВАТЬ PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="js/pdf-gen.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const id = new URLSearchParams(window.location.search).get('id');
+            const res = await fetch(`/api/products/${id}`);
+            const p = await res.json();
+            window.currentProduct = p;
+
+            const desc = p.fullDesc || 'Высококачественное сырье, прошедшее многоуровневую очистку и калибровку. Соответствует экспортным стандартам.';
+            const specRowsHtml = (p.specs || []).map(s => {
+                const parts = String(s).split(':');
+                const key = (parts[0] || '').trim();
+                const val = parts.slice(1).join(':').trim() || (parts[0] || '');
+                return `<div class="pi-spec-row"><span>${key}</span><strong>${val}</strong></div>`;
+            }).join('');
+
+            const cultureId = `00${p.id}`;
+
+            const defaultFeatures = ['Многоуровневая очистка', 'Протоколы лаборатории', 'Фитосанитарный контроль', 'Калибровка и сортировка'];
+            const features = (p.features && p.features.length > 0) ? p.features : defaultFeatures;
+            const featuresHtml = features.map((f, i) => {
+                const num = String(i + 1).padStart(2, '0');
+                return `<div class="feat-item"><span>${num}</span> ${f}</div>`;
+            }).join('');
+
+            const defaultBenefits = [
+                { bold: 'Стабильное качество', text: 'по ГОСТ-логике и внутренним стандартам.' },
+                { bold: 'Прозрачные показатели', text: 'по влажности, белку и сорной примеси.' },
+                { bold: 'Предсказуемые сроки', text: 'и подготовка партии под клиента.' }
+            ];
+            const benefits = (p.benefits && p.benefits.length > 0) ? p.benefits : defaultBenefits;
+            const benefitsHtml = benefits.map(b => `<li><strong>${b.bold}</strong> ${b.text}</li>`).join('');
+            const defaultBlocks = [
+                { title: 'Логистика', text: 'Организация поставок авто, ж/д и водным транспортом с документальным сопровождением.' },
+                { title: 'Сопровождение', text: 'Консультации по качеству, тестированию и подготовке партии под вашего покупателя.' },
+                { title: 'Документы', text: 'Протоколы испытаний и пакеты документов по требованиям контрагента.' }
+            ];
+            const blocks = (p.extraBlocks && p.extraBlocks.length > 0) ? p.extraBlocks : defaultBlocks;
+            const blocksHtml = blocks.map(b => `
+                <div class="pi-extra-card" style="grid-column: span ${Math.floor(12 / blocks.length)};">
+                    <h3 class="pi-sub">${b.title}</h3>
+                    <p>${b.text}</p>
+                </div>
+            `).join('');
+
+            document.getElementById('pi-content').innerHTML = `
+                <section class="pi-header reveal">
+                    <div class="pi-header-top">
+                        <!-- <span class="p-label">${p.cat} / ID: ${cultureId}</span> -->
+                        <h1>${p.name}</h1>
+                        <div class="pi-header-actions">
+                            <button class="cta-button" style="margin-top: 10px;" onclick="window.addToCart(window.currentProduct.id, window.currentProduct.name, window.currentProduct.cat, window.currentProduct.id * 8500 % 60000 + 15000, window.currentProduct.img)">В корзину</button>
+                            <button class="cta-button" style="margin-top: 10px; margin-left: 10px;" onclick="openCPModal()">Получить КП</button>
+                        </div>
+                    </div>
+                    <div class="pi-hero-frame">
+                        <img src="${p.img}" alt="">
+                        <div class="pi-floating-stats">
+                            <div class="f-stat"><span>Наличие</span><strong>${p.stock || 'По запросу'}</strong></div>
+                            <div class="f-stat"><span>Категория</span><strong>${p.cat}</strong></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section pi-body">
+                    <div class="grid-container">
+                        <div class="pi-main-text reveal" style="grid-column: span 7;">
+                            <h2 class="pi-sub">Описание культуры</h2>
+                            <p>${desc}</p>
+                            
+                            <div class="pi-features">
+                                ${featuresHtml}
+                            </div>
+
+                            ${benefits.length > 0 ? `
+                            <div class="pi-benefits">
+                                <h3 class="pi-sub-small">Что вы получаете</h3>
+                                <ul class="pi-benefit-list">
+                                    ${benefitsHtml}
+                                </ul>
+                            </div>` : ''}
+                        </div>
+
+                        <div class="pi-side reveal" style="grid-column: span 5;">
+                            <div class="pi-spec-card">
+                                <h2 class="pi-sub">Результаты тестов</h2>
+                                <div class="pi-spec-rows">
+                                    ${specRowsHtml || '<div class="pi-spec-row"><span>Показатели</span><strong>По запросу</strong></div>'}
+                                </div>
+                                <button class="cta-button" style="width: 100%; margin-top: 30px;" onclick="window.addToCart(window.currentProduct.id, window.currentProduct.name, window.currentProduct.cat, window.currentProduct.id * 8500 % 60000 + 15000, window.currentProduct.img)">В корзину</button>
+                            
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                ${blocks.length > 0 ? `
+                <section class="section pi-extra reveal">
+                    <div class="grid-container">
+                        ${blocksHtml}
+                    </div>
+                </section>` : ''}
+            `;
+            if(window.initAnimations) initAnimations();
+        });
+    </script>
+</body>
+</html>

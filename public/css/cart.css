@@ -1,0 +1,229 @@
+
+.cart-page-body { background: var(--bg); }
+
+.cart-terminal {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 160px 6% 0; 
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+
+.cart-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+}
+
+.cart-hero h1 { font-size: 4rem; line-height: 1; }
+.cart-hero h1 span { font-weight: 300; opacity: 0.3; }
+
+.cart-grid-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    flex: 1;
+}
+
+.cart-items-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.cart-actions-bottom {
+    margin-top: 50px;
+    display: flex; 
+    justify-content: flex-end; 
+    align-items: center; 
+}
+
+.clear-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-muted);
+    padding: 12px 25px;
+    font-family: 'Geologica';
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.clear-btn:hover {
+    border-color: #ff4d4d;
+    color: #ff4d4d;
+    background: rgba(255, 77, 77, 0.05);
+}
+
+body.light-theme .clear-btn {
+    border-color: rgba(0,0,0,0.1);
+}
+body.light-theme .clear-btn:hover {
+    border-color: #d00;
+    color: #d00;
+}
+
+.manifest-table-header {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr 40px;
+    padding: 0 20px 20px;
+    border-bottom: 2px solid var(--text);
+    font-family: 'Geologica';
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+}
+
+.cart-item-row {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr 40px;
+    align-items: center;
+    padding: 30px 20px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.01);
+    transition: 0.3s;
+}
+
+.cart-item-row:hover { background: rgba(255,255,255,0.03); }
+
+.c-info { display: flex; align-items: center; gap: 20px; }
+.c-info img { width: 60px; height: 60px; object-fit: cover; border-radius: 2px; filter: grayscale(1); }
+.c-info h4 { font-size: 1.1rem; margin-bottom: 5px; }
+.c-spec { font-size: 0.7rem; color: var(--primary); font-weight: 800; }
+
+.c-qty { display: flex; align-items: center; gap: 10px; }
+.c-qty input {
+    width: 70px; background: none; border: 1px solid var(--border);
+    color: var(--text); padding: 8px; font-family: 'Geologica'; font-weight: 800;
+}
+.unit { font-size: 0.8rem; color: var(--text-muted); }
+
+.c-price, .c-total { font-family: 'Geologica'; font-weight: 700; font-size: 1rem; }
+.c-remove { background: none; border: none; color: #444; cursor: pointer; transition: 0.3s; font-size: 1.2rem; }
+.c-remove:hover { color: #ff4d4d; }
+
+.cart-summary-bottom {
+    position: sticky;
+    bottom: 0;
+    margin: 0 -6%;
+    padding: 25px 6%;
+    z-index: 100;
+    background: rgba(8, 10, 8, 0.85); 
+    backdrop-filter: blur(35px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -30px 60px rgba(0,0,0,0.5);
+}
+
+.summary-bottom-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.summary-left {
+    flex: 0 1 auto;
+    min-width: 280px;
+}
+
+.summary-middle {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    padding: 0 40px;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 0 40px;
+}
+
+.summary-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.summary-metric label { font-size: 0.6rem; letter-spacing: 2px; color: var(--text-muted); font-weight: 800; }
+.summary-metric strong { font-family: 'Geologica'; font-size: 1.4rem; color: #fff; }
+
+.summary-right {
+    display: flex;
+    align-items: center;
+    gap: 60px;
+}
+
+.logistics-selector label { display: flex; align-items: center; font-size: 0.6rem; text-transform: uppercase; margin-bottom: 10px; color: var(--primary); letter-spacing: 2px; font-weight: 800;}
+.logistics-selector select {
+    width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text); padding: 12px 18px; font-family: 'Geologica';
+    outline: none; transition: 0.3s; font-size: 0.8rem;
+}
+.logistics-selector select:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
+.logistics-selector select option {
+    background: #ffffff;
+    color: #000000;
+}
+
+.total-block { text-align: right; }
+.total-block label { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 5px;}
+.total-block h2 { font-family: 'Geologica'; font-size: 2.8rem; color: var(--primary); line-height: 1; margin: 0;}
+
+.cta-button {
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    padding: 18px 50px;
+    font-family: 'Geologica', sans-serif;
+    font-weight: 900;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    overflow: hidden;
+    z-index: 2;
+    text-transform: uppercase;
+}
+
+.cta-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--primary);
+    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    z-index: -1;
+}
+
+.cta-button:hover { color: #000; box-shadow: 0 10px 40px var(--primary-glow); }
+.cta-button:hover::before { transform: translateX(0); }
+.cta-button:disabled { opacity: 0.3; pointer-events: none; }
+
+body.light-theme .cart-summary-bottom { background: rgba(255, 255, 255, 0.95); border-color: rgba(0,0,0,0.1); box-shadow: 0 -20px 40px rgba(0,0,0,0.05); }
+body.light-theme .logistics-selector select { background: #ffffff; border-color: rgba(0,0,0,0.15); color: #080a08; }
+body.light-theme .summary-metric strong { color: #080a08; }
+body.light-theme .summary-middle { border-color: rgba(0,0,0,0.1); }
+
+@media (max-width: 1100px) {
+    .summary-bottom-card { gap: 20px; }
+    .summary-middle { gap: 30px; margin: 0 20px; padding: 0 20px; }
+    .summary-right { gap: 30px; }
+    .total-block h2 { font-size: 2.2rem; }
+}
+
+@media (max-width: 900px) {
+    .cart-summary-bottom { position: static; margin: 40px -4% 0; padding: 30px 4%; }
+    .summary-bottom-card { flex-direction: column; gap: 30px; }
+    .summary-middle { border: none; padding: 20px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 0; width: 100%; justify-content: space-around; }
+    .summary-right { flex-direction: column; gap: 30px; align-items: stretch; width: 100%; }
+    .total-block { text-align: center; }
+}
