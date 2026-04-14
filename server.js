@@ -2463,11 +2463,13 @@ app.post('/api/support/messages', async (req, res) => {
   if (targetPeerId && VK_GROUP_TOKEN) {
     vkForwardStatus.attempted = true;
     try {
+      console.log('[Support] Forwarding to VK:', targetPeerId, 'text:', text.slice(0, 50));
       await vkApi('messages.send', {
         peer_id: targetPeerId,
-        random_id: Date.now(),
+        random_id: Math.floor(Math.random() * 1000000),
         message: `[Чат ${sessionId}]\n${userLabel}: ${text}\n\nМожно ответить так:\n/reply ${sessionId} ваш текст\nили просто ответом на это сообщение.`,
       });
+      console.log('[Support] Forwarding to VK: SUCCESS');
       vkForwardStatus.sent = true;
       bridge.lastSessionByPeer = bridge.lastSessionByPeer || {};
       bridge.lastSessionByPeer[String(targetPeerId)] = sessionId;
