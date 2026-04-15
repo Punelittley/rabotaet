@@ -33,8 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     loadComponent('footer-placeholder', 'includes/footer.html', () => {
         const footer = document.getElementById('footer') || document.querySelector('footer');
-        const wheat = document.getElementById('wheat-field');
-        if (wheat) createWheat();
+        createWheat(); 
         if (footer) observer.observe(footer);
         initFooterTabs();
     });
@@ -527,31 +526,36 @@ function initHeaderScroll() {
 }
 
 function createWheat() {
-    const field = document.getElementById('wheat-field');
-    if (!field) return;
+    const fields = document.querySelectorAll('.wheat-field');
+    fields.forEach(field => {
+        if (field.dataset.wheatCreated === '1') return;
+        field.dataset.wheatCreated = '1';
 
-    const raw = Math.floor(window.innerWidth / 15);
-    const count = Math.max(25, Math.min(80, raw));
-    let html = '';
+        const raw = Math.floor(window.innerWidth / 15);
+        const count = Math.max(25, Math.min(80, raw));
+        let html = '';
 
-    if (field.dataset.wheatCreated === '1') return;
-    field.dataset.wheatCreated = '1';
+        for (let i = 0; i < count; i++) {
+            const delay = (Math.random() * 4).toFixed(2);
+            const height = 60 + Math.random() * 40;
+            const opacity = 0.4 + Math.random() * 0.5;
 
-    for (let i = 0; i < count; i++) {
-        const delay = (Math.random() * 4).toFixed(2);
-        const height = 60 + Math.random() * 40;
-        const opacity = 0.4 + Math.random() * 0.5;
-
-        html += `
-            <svg class="wheat-stalk" style="animation-delay: ${delay}s; height: ${height}px; opacity: ${opacity}" viewBox="0 0 20 100">
-                <path d="M10 100 V30 M10 30 L15 20 M10 35 L5 25 M10 45 L16 35 M10 50 L4 40 M10 60 L15 50 M10 65 L5 55" 
-                      stroke="currentColor" stroke-width="2" fill="none" />
-                <ellipse cx="10" cy="25" rx="3" ry="6" fill="currentColor" />
-                <ellipse cx="15" cy="20" rx="2" ry="5" transform="rotate(20, 15, 20)" fill="currentColor" />
-                <ellipse cx="5" cy="25" rx="2" ry="5" transform="rotate(-20, 5, 25)" fill="currentColor" />
-            </svg>`;
-    }
-    field.innerHTML = html;
+            html += `
+                <svg class="wheat-stalk" style="animation-delay: ${delay}s; height: ${height}px; opacity: ${opacity}" viewBox="0 0 20 100">
+                    <path d="M10 100 V30 M10 30 L15 20 M10 35 L5 25 M10 45 L16 35 M10 50 L4 40 M10 60 L15 50 M10 65 L5 55" 
+                          stroke="currentColor" stroke-width="2" fill="none" />
+                    <ellipse cx="10" cy="25" rx="3" ry="6" fill="currentColor" />
+                    <ellipse cx="15" cy="20" rx="2" ry="5" transform="rotate(20, 15, 20)" fill="currentColor" />
+                    <ellipse cx="5" cy="25" rx="2" ry="5" transform="rotate(-20, 5, 25)" fill="currentColor" />
+                </svg>`;
+        }
+        field.innerHTML = html;
+        
+        // Auto-activate if it has the 'active' class already
+        if (field.classList.contains('active')) {
+            field.dataset.wheatActivated = '1';
+        }
+    });
 }
 
 let aboutSlideIndex = 0;

@@ -46,7 +46,7 @@ class SupportChat {
                 <div class="chat-header">
                     <div class="chat-title">
                         <div class="chat-title-text">
-                            <h4>Поддержка</h4>
+                            <h4>Техническая поддержка</h4>
                         </div>
                     </div>
                     <button class="close-chat" id="close-chat-btn" aria-label="Закрыть чат">&times;</button>

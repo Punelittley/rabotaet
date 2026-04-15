@@ -13,15 +13,13 @@
     <div class="auth-bg-container">
         <div class="bg-overlay"></div>
         <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80" class="bg-img" alt="Wheat field">
+
     </div>
 
     <main class="auth-center-wrapper">
         <div class="terminal-card reveal">
             <div class="terminal-header">
-                <div class="agro-status-line">
-                    <span class="status-tag">System: Active</span>
-                    <span class="status-tag">Season: 2026</span>
-                </div>
+
                 <h1 class="terminal-title" style="margin-bottom: 40px;">
                     <img src="media/logo.svg" alt="AGROSPHERE" style="height: 120px; width: auto; filter: drop-shadow(0 0 20px var(--primary-glow));">
                 </h1>
@@ -502,6 +500,7 @@
 
             showPendingSignupHint();
             initRegionSuggestion();
+            if (window.createWheat) window.createWheat();
 
             if (loginForm) {
                 loginForm.addEventListener('submit', async (e) => {

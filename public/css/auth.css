@@ -6,7 +6,13 @@
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
+    background: var(--bg);
 }
+
+#footer-placeholder {
+    margin-top: auto;
+}
+
 
 .auth-bg-container {
     position: fixed;
@@ -30,10 +36,10 @@
 .auth-center-wrapper {
     width: 100%;
     max-width: 980px;
-    padding: 20px;
+    padding: 140px 20px 60px;
     z-index: 10;
     margin: 0 auto;
-    flex: 1;
+    flex: 1 0 auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -227,6 +233,58 @@
 }
 
 .agro-input input:focus { border-color: var(--primary); }
+
+.cta-button {
+    color: #fff !important;
+}
+
+body.light-theme .cta-button {
+    color: #000 !important;
+}
+
+body.light-theme .terminal-card {
+    background: #ffffff;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.1);
+}
+
+body.light-theme .terminal-header {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+body.light-theme .terminal-body {
+    background: #fff;
+}
+
+body.light-theme .agro-input input {
+    background: rgba(0, 0, 0, 0.03);
+    color: #000;
+    border-color: rgba(0,0,0,0.1);
+}
+
+body.light-theme .agro-input input:focus {
+    border-color: var(--primary);
+}
+
+body.light-theme .terminal-side {
+    background: #f8f9fa;
+    border-left: 1px solid rgba(0,0,0,0.1);
+}
+
+body.light-theme .form-nav {
+    border-color: rgba(0,0,0,0.1);
+}
+
+body.light-theme .terminal-side-overlay {
+    background: linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0.8));
+}
+
+body.light-theme .terminal-side-img {
+    filter: brightness(0.9) saturate(1.1);
+}
+
+body.light-theme .side-title {
+    color: #000;
+}
 
 .agro-actions { text-align: right; margin-bottom: 20px; }
 .forgot-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; }

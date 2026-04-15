@@ -51,3 +51,22 @@
     padding: 25px 0;
     opacity: 0.8;
 }
+
+/* --- RESPONSIVENESS --- */
+@media (max-width: 1200px) {
+    .p-layout { flex-direction: column; gap: 60px; }
+    .p-sidebar { width: 100%; position: static; max-height: none; padding-right: 0; }
+    .filter-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .filter-list li { border: 1px solid var(--border); padding: 10px 20px; justify-content: center; opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .p-grid { grid-template-columns: 1fr; }
+    .filter-list { grid-template-columns: 1fr 1fr; }
+    .p-hero-simple h1 { font-size: 2.5rem; }
+    .p-page { padding-top: 100px; }
+}
+
+@media (max-width: 480px) {
+    .filter-list { grid-template-columns: 1fr; }
+}
