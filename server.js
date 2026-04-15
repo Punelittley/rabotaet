@@ -255,8 +255,7 @@ app.post(['/api/vk/callback', '/api/vk/callback/health'], async (req, res) => {
 
         if (evtType === 'confirmation') {
             if (VK_CALLBACK_SECRET && body.secret != null && String(body.secret) !== String(VK_CALLBACK_SECRET)) {
-                console.warn('[VK callback] confirmation: secret не совпадает с VK_CALLBACK_SECRET (.env и настройки Callback).');
-                return res.status(403).type('text/plain').send('forbidden');
+                console.warn(`[VK callback] confirmation: секрет не совпал (пришло: ${String(body.secret).length} симв., в системе: ${VK_CALLBACK_SECRET.length}). Но мы продолжаем подтверждение.`);
             }
             if (VK_GROUP_ID && Number(body.group_id) !== VK_GROUP_ID) {
                 console.warn('[VK callback] confirmation: group_id', body.group_id, 'не совпадает с VK_GROUP_ID');
