@@ -92,9 +92,9 @@ if (!fs.existsSync(SERVICES_FILE)) fs.writeFileSync(SERVICES_FILE, '[]');
 if (!fs.existsSync(SUPPORT_CHATS_FILE)) fs.writeFileSync(SUPPORT_CHATS_FILE, '[]');
 if (!fs.existsSync(SUPPORT_BRIDGE_FILE)) fs.writeFileSync(SUPPORT_BRIDGE_FILE, '{}');
 
-const VK_GROUP_TOKEN = process.env.VK_GROUP_TOKEN || '';
-const VK_CONFIRMATION_TOKEN = process.env.VK_CONFIRMATION_TOKEN || '';
-const VK_CALLBACK_SECRET = process.env.VK_CALLBACK_SECRET || '';
+const VK_GROUP_TOKEN = (process.env.VK_GROUP_TOKEN || '').trim();
+const VK_CONFIRMATION_TOKEN = (process.env.VK_CONFIRMATION_TOKEN || '').trim();
+const VK_CALLBACK_SECRET = (process.env.VK_CALLBACK_SECRET || '').trim();
 const VK_SUPPORT_PEER_ID = Number(process.env.VK_SUPPORT_PEER_ID || 0);
 /** Если задано — на confirmation проверяем, что group_id совпадает с сообществом (из JSON ВК). */
 const VK_GROUP_ID = process.env.VK_GROUP_ID ? Number(process.env.VK_GROUP_ID) : 0;

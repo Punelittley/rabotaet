@@ -1,0 +1,9 @@
+meta:
+  environment: nodejs
+  toolchain:
+    name: npm
+    version: 20
+build:
+  skip: false
+run:
+  scriptName: start
