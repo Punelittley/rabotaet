@@ -1270,7 +1270,7 @@ app.post('/api/auth/resend-code', async (req, res) => {
     await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: email,
-      subject: 'Новый код подтверждения AGROSPHERE',
+      subject: 'Новый код подтверждения Зеленый край',
       html: `<p>Ваш новый код подтверждения: <strong>${code}</strong></p>`
     });
 
@@ -1302,7 +1302,7 @@ app.post('/api/auth/request-password-reset', async (req, res) => {
     await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: email,
-      subject: 'Код для смены пароля AGROSPHERE',
+      subject: 'Код для смены пароля Зеленый край',
       html: `<p>Ваш код для подтверждения смены пароля: <strong>${code}</strong></p>`
     });
 
@@ -1395,7 +1395,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: normEmail,
-      subject: 'Восстановление пароля AGROSPHERE',
+      subject: 'Восстановление пароля Зеленый край',
       html: `<p>Ваш код для восстановления пароля: <strong>${code}</strong></p>`
     });
 
@@ -1580,7 +1580,7 @@ const services = [
 const news = [
   {
     id: 1,
-    title: 'Итоги уборочной кампании 2026: Рекордные показатели',
+    title: 'Новые агротехнологии: что поступило на вооружение в 2026 году',
     date: '15.11.2026',
     cat: 'Корпоративные',
     excerpt:
@@ -1607,7 +1607,7 @@ const news = [
   },
   {
     id: 4,
-    title: 'AgroSphere получила сертификат экологической безопасности',
+    title: 'Зеленый край получила сертификат экологической безопасности',
     date: '05.08.2026',
     cat: 'Устойчивое развитие',
     excerpt:
@@ -1630,7 +1630,7 @@ app.get('/api/products', async (req, res) => {
   try {
     const data = await getProducts();
     const enhancedData = data.map(dbProd => {
-      const localProd = products.find(lp => lp.id === dbProd.id);
+      const localProd = products.find(lp => String(lp.id) === String(dbProd.id));
       if (localProd && localProd.img) {
         return { ...dbProd, img: localProd.img };
       }
@@ -1873,7 +1873,7 @@ app.get('/api/admin/orders', async (req, res) => {
         
         const user = userRes.data || {};
         const meta = pickMeta(user);
-        const isAdmin = hasRootCookie || user.email?.includes('admin') || meta.organization === 'AGROSPHERE' || meta.role === 'admin';
+        const isAdmin = hasRootCookie || user.email?.includes('admin') || meta.organization === 'Зеленый край' || meta.role === 'admin';
         
         if (!isAdmin) return res.status(403).json({ message: 'Forbidden: Admin access required' });
 
