@@ -406,7 +406,9 @@ const AUTH_HEADERS_SERVICE = SUPABASE_SERVICE_ROLE_KEY
   : null;
 
 const CACHE_TTL_MS = 15000;
+const USER_CACHE_TTL_MS = 10000;
 const cache = {};
+const userCache = new Map();
 const SIGNUP_DEFAULT_COOLDOWN_MS = 60000;
 const signupCooldowns = new Map();
 
@@ -605,7 +607,12 @@ function getRestHeaders(accessToken = '') {
 }
 
 async function supaGetUser(accessToken) {
-  return requestJson(`${SUPABASE_URL}/auth/v1/user`, {
+  const cacheKey = accessToken.slice(-16);
+  const cached = userCache.get(cacheKey);
+  if (cached && Date.now() - cached.ts < USER_CACHE_TTL_MS) {
+    return cached.result;
+  }
+  const result = await requestJson(`${SUPABASE_URL}/auth/v1/user`, {
     method: 'GET',
     headers: {
       apikey: SUPABASE_ANON_KEY,
@@ -613,6 +620,14 @@ async function supaGetUser(accessToken) {
       Accept: 'application/json',
     },
   });
+  if (result.ok) {
+    userCache.set(cacheKey, { result, ts: Date.now() });
+    if (userCache.size > 200) {
+      const oldest = userCache.keys().next().value;
+      userCache.delete(oldest);
+    }
+  }
+  return result;
 }
 
 async function supaAdminUpdateUser(userId, metadata) {
@@ -1845,6 +1860,17 @@ app.get('/api/orders', async (req, res) => {
         console.warn('orders table access error:', err.message);
     }
     
+    // Always merge local file orders
+    const localOrders = readLocal(ORDERS_FILE);
+    const userLocalOrders = localOrders.filter(o => o.user_id === user.id);
+    const existingIds = new Set(orders.map(o => o.id));
+    const existingKeys = new Set(orders.map(o => o.user_id + '|' + o.created_at));
+    userLocalOrders.forEach(lo => {
+        if (!existingIds.has(lo.id) && !existingKeys.has(lo.user_id + '|' + lo.created_at)) {
+            orders.push(lo);
+        }
+    });
+
     const meta = pickMeta(user);
     const metaOrders = meta.order_history || [];
     
@@ -2203,10 +2229,19 @@ app.patch('/api/orders/:id', async (req, res) => {
         const userRes = await supaGetUser(token);
         if (!userRes.ok && !hasRootCookie) return res.status(401).json({ message: 'Invalid token' });
 
-    
-        const isAdmin = hasRootCookie || (userRes.ok && (userRes.data.email?.includes('admin') || pickMeta(userRes.data).role === 'admin'));
+        const user = userRes.data || {};
+        const isAdmin = hasRootCookie || (userRes.ok && (user.email?.includes('admin') || pickMeta(user).role === 'admin'));
         
-        if (!isAdmin) return res.status(403).json({ message: 'Forbidden' });
+        // Allow users to cancel their own orders
+        const isCancelOwn = status === 'cancelled';
+        let isOwner = false;
+        if (isCancelOwn && user.id) {
+            const localOrders = readLocal(ORDERS_FILE);
+            const targetOrder = localOrders.find(o => o.id === orderId);
+            if (targetOrder && targetOrder.user_id === user.id) isOwner = true;
+        }
+
+        if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Forbidden' });
 
         const updateData = {};
         if (status) updateData.status = status;
